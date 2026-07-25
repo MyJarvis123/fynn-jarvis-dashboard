@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS LCARS Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0e27;
+            color: #00d9ff;
+            font-family: 'Arial', sans-serif;
+            font-weight: bold;
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
+        /* SCANLINES EFFECT */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 217, 255, 0.02),
+                rgba(0, 217, 255, 0.02) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .container {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(90deg, #0a0e27 0%, #1a1f3a 50%, #0a0e27 100%);
+            border-bottom: 3px solid #ff6e1a;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 20px rgba(255, 110, 26, 0.3);
+        }
+
+        .header-left h1 {
+            font-size: 28px;
+            color: #ffd60a;
+            letter-spacing: 4px;
+            text-shadow: 0 0 10px #ffd60a;
+        }
+
+        .header-center {
+            text-align: center;
+            flex: 1;
+            font-size: 14px;
+            color: #00d9ff;
+            letter-spacing: 2px;
+        }
+
+        .header-right {
+            text-align: right;
+            font-size: 12px;
+            color: #00d9ff;
+        }
+
+        .main-content {
+            display: flex;
+            flex: 1;
+            gap: 10px;
+            padding: 10px;
+            overflow: hidden;
+        }
+
+        .left-column {
+            flex: 0 0 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .middle-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .right-column {
+            flex: 0 0 280px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        /* PANEL STYLING (LCARS) */
+        .panel {
+            background: #1a1f3a;
+            border: 2px solid #00d9ff;
+            border-radius: 2px;
+            padding: 12px;
+            box-shadow: 0 0 15px rgba(0, 217, 255, 0.2), inset 0 0 10px rgba(0, 217, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff6e1a, transparent);
+        }
+
+        .panel-header {
+            color: #ffd60a;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #ff6e1a;
+            padding-bottom: 5px;
+        }
+
+        .panel-content {
+            flex: 1;
+            font-size: 12px;
+        }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 4px 0;
+            color: #00d9ff;
+        }
+
+        .stat-label {
+            color: #ffd60a;
+        }
+
+        .stat-value {
+            color: #ff6e1a;
+            font-weight: bold;
+        }
+
+        /* CIRCULAR DIAL */
+        .circular-dial {
+            width: 140px;
+            height: 140px;
+            margin: 10px auto;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 214, 10, 0.3), transparent);
+            border: 2px solid #ff6e1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffd60a;
+            box-shadow: inset 0 0 20px rgba(0, 217, 255, 0.1), 0 0 20px rgba(255, 110, 26, 0.2);
+        }
+
+        /* PROGRESS BARS (LCARS STYLE) */
+        .lcars-bar {
+            height: 8px;
+            background: rgba(0, 217, 255, 0.1);
+            border: 1px solid #00d9ff;
+            margin: 5px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lcars-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6e1a, #ffd60a);
+            transition: width 0.3s;
+            box-shadow: 0 0 10px #ff6e1a;
+        }
+
+        /* STATUS INDICATORS */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00d9ff;
+            box-shadow: 0 0 8px #00d9ff;
+            animation: pulse 1.5s infinite;
+            margin-right: 5px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* BOTTOM STATUS BAR */
+        .status-bar {
+            background: #0a0e27;
+            border-top: 2px solid #ff6e1a;
+            padding: 8px 20px;
+            font-size: 11px;
+            color: #00d9ff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(255, 110, 26, 0.2);
+        }
+
+        .status-item {
+            margin: 0 15px;
+        }
+
+        /* SCROLLBAR STYLING */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 217, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ff6e1a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ffd60a;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .large-panel {
+            flex: 2;
+        }
+
+        .small-panel {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-left">
+                <h1>◆ JARVIS ◆</h1>
+            </div>
+            <div class="header-center">
+                <div>PERSONAL COMMAND CENTER</div>
+                <div id="stardate">Stardate 25.07.2026</div>
+            </div>
+            <div class="header-right">
+                <div>System Status: <span class="status-dot"></span>ONLINE</div>
+                <div id="time">--:-- CET</div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+                <!-- ENERGY LEVEL DIAL -->
+                <div class="panel large-panel">
+                    <div class="panel-header">⚡ Energy Status</div>
+                    <div class="panel-content">
+                        <div class="circular-dial" id="energyDial">7/10</div>
+                        <div class="stat-line">
+                            <span class="stat-label">Current:</span>
+                            <span class="stat-value" id="energyNow">--</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Average:</span>
+                            <span class="stat-value" id="energyAvg">--</span>
+                        </div>
+                        <div class="lcars-bar">
+                            <div class="lcars-bar-fill" id="energyBar" style="width: 70%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SYSTEM STATUS -->
+                <div class="panel small-panel">
+                    <div class="panel-header">🔧 System Status</div>
+                    <div class="panel-content">
+                        <div class="stat-line">
+                            <span><span class="status-dot"></span>Training</span>
+                            <span class="stat-value">ACTIVE</span>
+                        </div>
+                        <div class="stat-line">
+                            <span><span class="status-dot"></span>Learning</span>
+                            <span class="stat-value">ACTIVE</span>
+                        </div>
+                        <div class="stat-line">
+                            <span><span class="status-dot"></span>Recovery</span>
+                            <span class="stat-value">READY</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MIDDLE COLUMN -->
+            <div class="middle-column">
+                <!-- TRAINING STATS -->
+                <div class="panel large-panel">
+                    <div class="panel-header">🏋️ Training Analysis</div>
+                    <div class="panel-content">
+                        <div class="stat-line">
+                            <span class="stat-label">Sessions This Week:</span>
+                            <span class="stat-value" id="trainingSessions">0/5</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Total Hours:</span>
+                            <span class="stat-value" id="trainingHours">0h</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Consistency:</span>
+                            <span class="stat-value" id="trainingConsistency">--</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="stat-label">Progress Bar:</span>
+                            <div class="lcars-bar">
+                                <div class="lcars-bar-fill" id="trainingBar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECHT-CRASH STATS -->
+                <div class="panel large-panel">
+                    <div class="panel-header">📚 Recht-Crash Progress</div>
+                    <div class="panel-content">
+                        <div class="stat-line">
+                            <span class="stat-label">Sessions:</span>
+                            <span class="stat-value" id="rechtSessions">0/4</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Total Time:</span>
+                            <span class="stat-value" id="rechtHours">0h</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Memory Palace:</span>
+                            <span class="stat-value" id="palaceProgress">30%</span>
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <div class="lcars-bar">
+                                <div class="lcars-bar-fill" id="palaceBar" style="width: 30%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
+                <!-- SLEEP ANALYSIS -->
+                <div class="panel small-panel">
+                    <div class="panel-header">💤 Sleep Quality</div>
+                    <div class="panel-content">
+                        <div class="stat-line">
+                            <span class="stat-label">Avg Hours:</span>
+                            <span class="stat-value" id="sleepAvg">--h</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Last Night:</span>
+                            <span class="stat-value" id="sleepLast">--h</span>
+                        </div>
+                        <div class="stat-line">
+                            <span class="stat-label">Rating:</span>
+                            <span class="stat-value" id="sleepQuality">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RECOVERY INFO -->
+                <div class="panel small-panel">
+                    <div class="panel-header">⏳ Recovery Window</div>
+                    <div class="panel-content" id="recoveryInfo">
+                        <div class="stat-line">
+                            <span class="stat-label">Status:</span>
+                            <span class="stat-value">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INSIGHTS -->
+                <div class="panel large-panel">
+                    <div class="panel-header">🔍 Jarvis Analysis</div>
+                    <div class="panel-content" id="insights">
+                        <div style="font-size: 11px; color: #00d9ff; line-height: 1.5;">
+                            Awaiting data collection. Report ready after 3 days.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BOTTOM STATUS BAR -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot"></span>DATA FEED: ACTIVE
+            </div>
+            <div class="status-item" id="lastUpdate">
+                LAST UPDATE: --:--
+            </div>
+            <div class="status-item">
+                SYSTEM: OPERATIONAL
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allData = [];
+
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                allData = await response.json();
+                updateDashboard();
+                updateTime();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function updateDashboard() {
+            if (!allData || allData.length === 0) return;
+
+            updateStats();
+            updateSleepData();
+            updateRecovery();
+            updateInsights();
+        }
+
+        function updateStats() {
+            let trainingSessions = 0;
+            let trainingHours = 0;
+            let rechtSessions = 0;
+            let rechtHours = 0;
+            let energyValues = [];
+
+            allData.forEach(day => {
+                if (day.training) trainingSessions++;
+                if (day.trainingMinutes) trainingHours += day.trainingMinutes;
+                if (day.recht) rechtSessions++;
+                if (day.rechtMinutes) rechtHours += day.rechtMinutes;
+                if (day.energy) energyValues.push(day.energy);
+            });
+
+            trainingHours = (trainingHours / 60).toFixed(1);
+            rechtHours = (rechtHours / 60).toFixed(1);
+
+            // Update displays
+            const currentEnergy = allData[allData.length - 1].energy || 0;
+            const avgEnergy = energyValues.length > 0 ? (energyValues.reduce((a, b) => a + b) / energyValues.length).toFixed(1) : 0;
+
+            document.getElementById('energyDial').textContent = currentEnergy + '/10';
+            document.getElementById('energyNow').textContent = currentEnergy;
+            document.getElementById('energyAvg').textContent = avgEnergy;
+            document.getElementById('energyBar').style.width = (currentEnergy * 10) + '%';
+
+            document.getElementById('trainingSessions').textContent = `${trainingSessions}/${allData.length}`;
+            document.getElementById('trainingHours').textContent = `${trainingHours}h`;
+            document.getElementById('trainingConsistency').textContent = ((trainingSessions / allData.length) * 100).toFixed(0) + '%';
+            document.getElementById('trainingBar').style.width = ((trainingSessions / allData.length) * 100) + '%';
+
+            document.getElementById('rechtSessions').textContent = `${rechtSessions}/${allData.length}`;
+            document.getElementById('rechtHours').textContent = `${rechtHours}h`;
+        }
+
+        function updateSleepData() {
+            const sleepData = allData.filter(d => d.sleep).map(d => d.sleep);
+            if (sleepData.length === 0) return;
+
+            const avgSleep = (sleepData.reduce((a, b) => a + b) / sleepData.length).toFixed(1);
+            const lastSleep = sleepData[sleepData.length - 1];
+
+            document.getElementById('sleepAvg').textContent = `${avgSleep}h`;
+            document.getElementById('sleepLast').textContent = `${lastSleep}h`;
+            document.getElementById('sleepQuality').textContent = avgSleep >= 7 ? 'OPTIMAL' : 'MONITOR';
+        }
+
+        function updateRecovery() {
+            document.getElementById('recoveryInfo').innerHTML = `
+                <div class="stat-line">
+                    <span class="stat-label">Status:</span>
+                    <span class="stat-value">READY ✓</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Window:</span>
+                    <span class="stat-value">48h</span>
+                </div>
+                <div class="stat-line">
+                    <span class="stat-label">Next Hard:</span>
+                    <span class="stat-value">OK</span>
+                </div>
+            `;
+        }
+
+        function updateInsights() {
+            const energyValues = allData.map(d => d.energy || 0);
+            const avgEnergy = energyValues.reduce((a, b) => a + b) / energyValues.length;
+
+            let insight = '<p>';
+            if (avgEnergy < 5) {
+                insight += '⚠️ Energy trending low. Increase rest.';
+            } else if (avgEnergy >= 7) {
+                insight += '✓ Energy stable. Good for training.';
+            } else {
+                insight += '≈ Energy moderate. Monitor recovery.';
+            }
+            insight += '</p>';
+
+            document.getElementById('insights').innerHTML = insight;
+        }
+
+        function updateStardate() {
+            const now = new Date();
+            const year = now.getFullYear() - 2000;
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            document.getElementById('stardate').textContent = `Stardate ${year}${month}${day}`;
+        }
+
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('time').textContent = time + ' CET';
+            document.getElementById('lastUpdate').textContent = 'LAST UPDATE: ' + time;
+        }
+
+        // Initialize
+        updateStardate();
+        loadData();
+        setInterval(() => {
+            updateTime();
+            loadData();
+        }, 5000);
+    </script>
+</body>
+</html>

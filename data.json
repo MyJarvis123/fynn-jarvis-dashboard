@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2026-07-25",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest - Back Pain",
+    "recht": true,
+    "rechtMinutes": 30,
+    "rechtType": "Memory Palace",
+    "energy": 4,
+    "sleep": 9,
+    "sleepQuality": "good",
+    "notes": "Recovery day due to back strain. Memory Palace session smooth."
+  }
+]
