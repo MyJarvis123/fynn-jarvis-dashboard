@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS LCARS COMMAND CENTER</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+    <title>JARVIS LCARS</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
-
         * {
             margin: 0;
             padding: 0;
@@ -15,402 +12,273 @@
         }
 
         body {
-            background: #000814;
-            color: #00d9ff;
-            font-family: 'Orbitron', 'Arial', sans-serif;
+            background: #000000;
+            color: #ff9900;
+            font-family: 'Courier New', monospace;
             font-weight: bold;
             overflow: hidden;
-            line-height: 1.1;
-            letter-spacing: 1px;
-        }
-
-        /* AUTHENTISCHE SCANLINES */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 217, 255, 0.03),
-                rgba(0, 217, 255, 0.03) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            z-index: 9999;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                90deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 217, 255, 0.02) 2px,
-                rgba(0, 217, 255, 0.02) 4px
-            );
-            pointer-events: none;
-            z-index: 9998;
+            line-height: 1.2;
         }
 
         .container {
-            display: flex;
             width: 100vw;
             height: 100vh;
+            display: flex;
             flex-direction: column;
+            padding: 15px;
+            gap: 12px;
         }
 
-        /* HEADER - LCARS AUTHENTIC */
+        /* HEADER */
         .header {
-            background: linear-gradient(90deg, #000814 0%, #0a1628 50%, #000814 100%);
-            border-bottom: 4px solid #ff6e1a;
-            border-top: 2px solid #ffd60a;
-            padding: 12px 25px;
+            display: flex;
+            gap: 15px;
+            height: 120px;
+        }
+
+        .header-title {
+            background: linear-gradient(90deg, #ff9900 0%, #ffaa00 100%);
+            padding: 15px;
+            color: #000;
+            font-size: 28px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            border-radius: 0 15px 15px 0;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.8);
+        }
+
+        .header-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .status-block {
+            background: linear-gradient(135deg, #6666ff 0%, #7777ff 100%);
+            border-radius: 0 20px 20px 0;
+            padding: 15px;
+            color: #000;
+            font-size: 11px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.8);
+        }
+
+        .status-line {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            box-shadow:
-                0 0 40px rgba(255, 110, 26, 0.6),
-                0 0 80px rgba(255, 110, 26, 0.3),
-                inset 0 1px 0 rgba(255, 214, 10, 0.5),
-                0 2px 10px rgba(0, 0, 0, 0.8);
-            position: relative;
+            font-weight: bold;
+            letter-spacing: 1px;
         }
 
-        .header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #ffd60a, transparent);
+        .status-label {
+            color: #000;
         }
 
-        .header-logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .header-logo h1 {
-            font-size: 36px;
-            color: #ffd60a;
-            letter-spacing: 8px;
-            text-shadow:
-                0 0 20px #ffd60a,
-                0 0 40px rgba(255, 214, 10, 0.6),
-                0 0 60px rgba(255, 110, 26, 0.3);
+        .status-value {
+            color: #000;
             font-weight: 900;
-        }
-
-        .status-pulse {
-            width: 12px;
-            height: 12px;
-            background: #00d9ff;
-            border-radius: 50%;
-            box-shadow:
-                0 0 10px #00d9ff,
-                0 0 20px #00d9ff,
-                inset 0 0 5px rgba(255, 255, 255, 0.3);
-            animation: pulse-glow 1.5s infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 10px #00d9ff, 0 0 20px #00d9ff, inset 0 0 5px rgba(255, 255, 255, 0.3); }
-            50% { box-shadow: 0 0 5px #00d9ff, 0 0 10px #00d9ff, inset 0 0 5px rgba(255, 255, 255, 0.1); }
-        }
-
-        .header-center {
-            text-align: center;
-            flex: 1;
-        }
-
-        .header-center-title {
-            font-size: 13px;
-            color: #ffd60a;
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px #ffd60a;
-            margin-bottom: 2px;
-        }
-
-        .header-center-sub {
-            font-size: 10px;
-            color: #00d9ff;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px #00d9ff;
-        }
-
-        .header-right {
-            text-align: right;
-            font-size: 10px;
-            color: #ff6e1a;
-            text-shadow: 0 0 10px #ff6e1a;
-            letter-spacing: 2px;
-        }
-
-        .header-right-item {
-            margin-bottom: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            gap: 8px;
         }
 
         /* MAIN CONTENT */
         .content {
             display: flex;
             flex: 1;
-            gap: 10px;
-            padding: 10px;
-            overflow: hidden;
-            background: linear-gradient(135deg, rgba(0, 217, 255, 0.02), rgba(255, 110, 26, 0.01));
+            gap: 12px;
         }
 
         .column {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            overflow-y: auto;
+            gap: 12px;
         }
 
         .col-left {
-            flex: 0 0 290px;
+            width: 280px;
         }
 
         .col-center {
             flex: 1;
-            min-width: 500px;
         }
 
         .col-right {
-            flex: 0 0 290px;
+            width: 280px;
         }
 
-        /* AUTHENTISCHES LCARS PANEL */
+        /* LCARS PANEL - BIG GEOMETRIC */
         .panel {
-            background: linear-gradient(135deg, rgba(0, 20, 40, 0.8), rgba(0, 30, 50, 0.6));
-            border: 3px solid #00d9ff;
-            border-radius: 0;
-            padding: 10px;
-            box-shadow:
-                0 0 25px rgba(0, 217, 255, 0.4),
-                inset 0 0 20px rgba(0, 217, 255, 0.05),
-                0 0 50px rgba(0, 217, 255, 0.2);
-            position: relative;
+            background: linear-gradient(135deg, #ff9900 0%, #ffaa00 100%);
+            border-radius: 0 25px 25px 0;
+            padding: 15px;
+            color: #000;
             display: flex;
             flex-direction: column;
-            min-height: 130px;
-            backdrop-filter: blur(2px);
+            position: relative;
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.9);
+            overflow: hidden;
+            min-height: 100px;
         }
 
-        .panel::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #ff6e1a 20%, #ffd60a 50%, #ff6e1a 80%, transparent);
-            box-shadow: 0 0 15px #ff6e1a;
+        .panel.blue {
+            background: linear-gradient(135deg, #6666ff 0%, #7777ff 100%);
         }
 
-        .panel::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #00d9ff, transparent);
+        .panel.pink {
+            background: linear-gradient(135deg, #ff66cc 0%, #ff77dd 100%);
+        }
+
+        .panel.cyan {
+            background: linear-gradient(135deg, #00ddff 0%, #00eeff 100%);
         }
 
         .panel-title {
-            color: #ffd60a;
-            font-size: 12px;
-            letter-spacing: 3px;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            border-bottom: 2px solid #ff6e1a;
-            padding-bottom: 6px;
-            text-shadow: 0 0 10px #ffd60a;
+            font-size: 13px;
             font-weight: 900;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            color: #000;
+            border-bottom: 2px solid rgba(0,0,0,0.3);
+            padding-bottom: 5px;
         }
 
         .panel-content {
             flex: 1;
             font-size: 11px;
-            overflow: hidden;
+            overflow-y: auto;
         }
 
-        /* CIRCULAR GAUGES - ECHTES LCARS */
-        .gauge-container {
-            width: 150px;
-            height: 150px;
-            margin: 8px auto;
-            position: relative;
-        }
-
-        .gauge-outer {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(
-                from 0deg,
-                #ff6e1a 0deg,
-                #ffd60a 90deg,
-                #ff6e1a 180deg,
-                #ff6e1a 270deg,
-                #ff6e1a 360deg
-            );
-            padding: 4px;
-            box-shadow:
-                0 0 30px rgba(255, 110, 26, 0.8),
-                0 0 50px rgba(255, 110, 26, 0.4),
-                inset 0 0 30px rgba(0, 0, 0, 0.5);
+        /* DATA DISPLAY */
+        .data-line {
             display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .gauge-inner {
-            width: calc(100% - 8px);
-            height: calc(100% - 8px);
-            border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, rgba(0, 217, 255, 0.1), #000814);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            border: 2px solid #00d9ff;
-            box-shadow: inset 0 0 20px rgba(0, 217, 255, 0.3);
-        }
-
-        .gauge-value {
-            font-size: 32px;
-            color: #ffd60a;
-            text-shadow: 0 0 20px #ffd60a;
-            font-weight: 900;
-        }
-
-        .gauge-label {
-            font-size: 9px;
-            color: #00d9ff;
+            justify-content: space-between;
+            margin: 4px 0;
+            color: #000;
+            font-weight: bold;
             letter-spacing: 1px;
         }
 
-        /* LCARS BARS */
-        .lcars-bar {
-            height: 12px;
-            background: rgba(0, 217, 255, 0.1);
-            border: 2px solid #00d9ff;
-            margin: 8px 0;
-            position: relative;
-            overflow: hidden;
-            box-shadow:
-                inset 0 0 8px rgba(0, 217, 255, 0.2),
-                0 0 10px rgba(0, 217, 255, 0.2);
-        }
-
-        .lcars-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff6e1a 0%, #ffd60a 50%, #ff6e1a 100%);
-            transition: width 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            box-shadow:
-                0 0 15px #ff6e1a,
-                inset 0 0 5px rgba(255, 255, 255, 0.2);
-        }
-
-        /* STATS */
-        .stat-line {
-            display: flex;
-            justify-content: space-between;
-            margin: 5px 0;
-            color: #00d9ff;
-            font-size: 11px;
-            padding: 3px 0;
-            border-bottom: 1px solid rgba(0, 217, 255, 0.15);
-            letter-spacing: 0.5px;
-        }
-
-        .stat-label {
-            color: #ffd60a;
-            text-shadow: 0 0 5px #ffd60a;
-        }
-
-        .stat-value {
-            color: #ff6e1a;
+        .data-label {
+            color: #000;
             font-weight: 900;
-            text-shadow: 0 0 8px #ff6e1a;
         }
 
-        /* CHARTS */
-        .chart-wrapper {
-            position: relative;
-            height: 180px;
-            margin: 6px 0;
+        .data-value {
+            color: #000;
+            font-weight: 900;
+            text-align: right;
         }
 
-        .small-chart {
-            height: 120px;
+        /* BIG GAUGE */
+        .big-gauge {
+            width: 100%;
+            aspect-ratio: 1;
+            border-radius: 0 30px 30px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            font-weight: 900;
+            color: #000;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin: 10px 0;
         }
 
-        /* SCROLLBAR LCARS STYLE */
-        ::-webkit-scrollbar {
-            width: 10px;
+        /* CHART AREA */
+        .chart-area {
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+            padding: 10px;
+            margin: 10px 0;
+            min-height: 120px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 5px;
         }
 
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 217, 255, 0.05);
-            border-left: 2px solid #00d9ff;
+        .chart-bar {
+            flex: 1;
+            background: rgba(0,0,0,0.5);
+            border-radius: 5px 5px 0 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: #000;
+            font-size: 9px;
+            font-weight: bold;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #ff6e1a, #ffd60a);
-            border-radius: 0;
-            box-shadow: 0 0 10px #ff6e1a;
+        /* DATA GRID */
+        .data-grid {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 9px;
+            color: #000;
+            font-family: 'Courier New', monospace;
+            line-height: 1.4;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .data-grid-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 3px 0;
         }
 
         /* FOOTER */
         .footer {
-            background: linear-gradient(90deg, #000814 0%, #0a1628 50%, #000814 100%);
-            border-top: 4px solid #ff6e1a;
-            border-bottom: 2px solid #ffd60a;
-            padding: 8px 20px;
-            font-size: 9px;
-            color: #00d9ff;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            text-shadow: 0 0 10px #00d9ff;
-            letter-spacing: 2px;
-            box-shadow:
-                0 -2px 20px rgba(255, 110, 26, 0.3),
-                inset 0 -1px 0 rgba(255, 214, 10, 0.3);
+            gap: 12px;
+            height: 80px;
         }
 
         .footer-item {
-            margin: 0 15px;
+            flex: 1;
+            background: linear-gradient(135deg, #ff9900 0%, #ffaa00 100%);
+            border-radius: 20px 0 0 20px;
+            padding: 15px;
+            color: #000;
+            font-size: 11px;
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
+            justify-content: space-around;
+            box-shadow: 8px 8px 20px rgba(0,0,0,0.9);
+            font-weight: bold;
         }
 
-        .footer-dot {
-            width: 8px;
-            height: 8px;
-            background: #00d9ff;
-            border-radius: 50%;
-            box-shadow: 0 0 8px #00d9ff;
-            animation: pulse-glow 1.5s infinite;
+        .footer-item.blue {
+            background: linear-gradient(135deg, #6666ff 0%, #7777ff 100%);
+        }
+
+        .footer-item.pink {
+            background: linear-gradient(135deg, #ff66cc 0%, #ff77dd 100%);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0,0,0,0.6);
+            border-radius: 3px;
         }
 
         .large {
@@ -425,24 +293,52 @@
 <body>
 
     <div class="container">
-        <!-- AUTHENTISCHER LCARS HEADER -->
+        <!-- HEADER -->
         <div class="header">
-            <div class="header-logo">
-                <div class="status-pulse"></div>
-                <h1>â—† JARVIS â—†</h1>
-            </div>
-            <div class="header-center">
-                <div class="header-center-title">PERSONAL COMMAND CENTER</div>
-                <div class="header-center-sub">â—† SYSTEM ONLINE â—†</div>
-                <div class="header-center-sub" id="stardate" style="font-size: 9px;">STARDATE 25.07.2026</div>
-            </div>
-            <div class="header-right">
-                <div class="header-right-item">
-                    <div class="status-pulse" style="width: 10px; height: 10px;"></div>
-                    <span>OPERATIONAL</span>
+            <div class="header-title">JARVIS</div>
+            <div class="header-content">
+                <div class="status-block">
+                    <div class="status-line">
+                        <span class="status-label">SYSTEM:</span>
+                        <span class="status-value">ONLINE</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">AI:</span>
+                        <span class="status-value">ACTIVE</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">STATUS:</span>
+                        <span class="status-value">GREEN</span>
+                    </div>
                 </div>
-                <div class="header-right-item" id="time">--:-- CET</div>
-                <div class="header-right-item" style="color: #00d9ff; font-size: 9px;">AI: ACTIVE</div>
+                <div class="status-block blue">
+                    <div class="status-line">
+                        <span class="status-label">MODE:</span>
+                        <span class="status-value">COMMAND</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">ALERT:</span>
+                        <span class="status-value">NONE</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">DATA:</span>
+                        <span class="status-value" id="headerTime">--:--</span>
+                    </div>
+                </div>
+                <div class="status-block pink">
+                    <div class="status-line">
+                        <span class="status-label">ENERGY:</span>
+                        <span class="status-value" id="headerEnergy">-</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">NEXT:</span>
+                        <span class="status-value">READY</span>
+                    </div>
+                    <div class="status-line">
+                        <span class="status-label">WARN:</span>
+                        <span class="status-value">OFF</span>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -450,54 +346,59 @@
         <div class="content">
             <!-- LEFT COLUMN -->
             <div class="column col-left">
-                <!-- ENERGY GAUGE -->
                 <div class="panel large">
-                    <div class="panel-title">âš¡ Energy</div>
+                    <div class="panel-title">âš¡ ENERGY</div>
                     <div class="panel-content">
-                        <div class="gauge-container">
-                            <div class="gauge-outer">
-                                <div class="gauge-inner">
-                                    <div class="gauge-value" id="energyValue">7</div>
-                                    <div class="gauge-label">/10</div>
-                                </div>
+                        <div style="text-align: center; font-size: 48px; font-weight: 900; margin: 20px 0;" id="energyGauge">7/10</div>
+                        <div class="data-grid">
+                            <div class="data-grid-row">
+                                <span>LEVEL:</span>
+                                <span id="energyLevel">4</span>
+                            </div>
+                            <div class="data-grid-row">
+                                <span>AVG:</span>
+                                <span id="energyAvg">--</span>
+                            </div>
+                            <div class="data-grid-row">
+                                <span>TREND:</span>
+                                <span>STABLE</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- SLEEP GAUGE -->
-                <div class="panel small">
-                    <div class="panel-title">ðŸ’¤ Sleep</div>
+                <div class="panel small blue">
+                    <div class="panel-title">ðŸ’¤ SLEEP</div>
                     <div class="panel-content">
-                        <div class="stat-line">
-                            <span class="stat-label">Hours:</span>
-                            <span class="stat-value" id="sleepLast">9h</span>
+                        <div class="data-line">
+                            <span class="data-label">HOURS:</span>
+                            <span class="data-value" id="sleepHours">9h</span>
                         </div>
-                        <div class="stat-line">
-                            <span class="stat-label">Avg:</span>
-                            <span class="stat-value" id="sleepAvg">--h</span>
+                        <div class="data-line">
+                            <span class="data-label">QUALITY:</span>
+                            <span class="data-value">GOOD</span>
                         </div>
-                        <div class="lcars-bar">
-                            <div class="lcars-bar-fill" id="sleepBar" style="width: 90%;"></div>
+                        <div class="data-line">
+                            <span class="data-label">AVG:</span>
+                            <span class="data-value" id="sleepAvg">--h</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- SYSTEMS STATUS -->
-                <div class="panel small">
-                    <div class="panel-title">ðŸ”§ Systems</div>
+                <div class="panel small pink">
+                    <div class="panel-title">ðŸ”§ SYSTEMS</div>
                     <div class="panel-content">
-                        <div class="stat-line">
-                            <span><div class="status-pulse" style="width: 8px; height: 8px;"></div>Training</span>
-                            <span class="stat-value">ACTIVE</span>
+                        <div class="data-line">
+                            <span class="data-label">TRAINING:</span>
+                            <span class="data-value">âœ“</span>
                         </div>
-                        <div class="stat-line">
-                            <span><div class="status-pulse" style="width: 8px; height: 8px;"></div>Learning</span>
-                            <span class="stat-value">ACTIVE</span>
+                        <div class="data-line">
+                            <span class="data-label">LEARNING:</span>
+                            <span class="data-value">âœ“</span>
                         </div>
-                        <div class="stat-line">
-                            <span><div class="status-pulse" style="width: 8px; height: 8px;"></div>AI</span>
-                            <span class="stat-value">ONLINE</span>
+                        <div class="data-line">
+                            <span class="data-label">RECOVERY:</span>
+                            <span class="data-value">âœ“</span>
                         </div>
                     </div>
                 </div>
@@ -505,48 +406,54 @@
 
             <!-- CENTER COLUMN -->
             <div class="column col-center">
-                <!-- ENERGY TREND -->
                 <div class="panel">
-                    <div class="panel-title">ðŸ“Š Energy Trend Analysis</div>
+                    <div class="panel-title">ðŸ“Š ENERGY TREND</div>
                     <div class="panel-content">
-                        <div class="chart-wrapper">
-                            <canvas id="energyTrendChart"></canvas>
+                        <div class="chart-area" id="energyChart">
+                            <div class="chart-bar" style="height: 40%;"><span>4</span></div>
+                            <div class="chart-bar" style="height: 45%;"><span>4</span></div>
+                            <div class="chart-bar" style="height: 50%;"><span>5</span></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TRAINING + RECHT ROW -->
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                    <div class="panel">
-                        <div class="panel-title">ðŸ‹ï¸ Training</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="panel blue">
+                        <div class="panel-title">ðŸ‹ï¸ TRAINING</div>
                         <div class="panel-content">
-                            <div class="chart-wrapper small-chart">
-                                <canvas id="trainingChart"></canvas>
+                            <div class="chart-area" id="trainingChart">
+                                <div class="chart-bar" style="height: 0%; background: rgba(255,255,255,0.2);"><span>0</span></div>
+                                <div class="chart-bar" style="height: 0%; background: rgba(255,255,255,0.2);"><span>0</span></div>
                             </div>
-                            <div class="stat-line">
-                                <span class="stat-label">Sessions:</span>
-                                <span class="stat-value" id="trainingSessions">0/5</span>
-                            </div>
-                            <div class="stat-line">
-                                <span class="stat-label">Hours:</span>
-                                <span class="stat-value" id="trainingHours">0h</span>
+                            <div class="data-grid">
+                                <div class="data-grid-row">
+                                    <span>SESSIONS:</span>
+                                    <span id="trainingSessions">0/5</span>
+                                </div>
+                                <div class="data-grid-row">
+                                    <span>HOURS:</span>
+                                    <span id="trainingHours">0h</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="panel">
-                        <div class="panel-title">ðŸ“š Recht-Crash</div>
+                    <div class="panel cyan">
+                        <div class="panel-title">ðŸ“š RECHT-CRASH</div>
                         <div class="panel-content">
-                            <div class="chart-wrapper small-chart">
-                                <canvas id="rechtChart"></canvas>
+                            <div class="chart-area" id="rechtChart">
+                                <div class="chart-bar" style="height: 60%;"><span>1</span></div>
+                                <div class="chart-bar" style="height: 0%; background: rgba(255,255,255,0.2);"><span>0</span></div>
                             </div>
-                            <div class="stat-line">
-                                <span class="stat-label">Sessions:</span>
-                                <span class="stat-value" id="rechtSessions">0/4</span>
-                            </div>
-                            <div class="stat-line">
-                                <span class="stat-label">Hours:</span>
-                                <span class="stat-value" id="rechtHours">0h</span>
+                            <div class="data-grid">
+                                <div class="data-grid-row">
+                                    <span>SESSIONS:</span>
+                                    <span id="rechtSessions">1/4</span>
+                                </div>
+                                <div class="data-grid-row">
+                                    <span>HOURS:</span>
+                                    <span id="rechtHours">0.5h</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -555,60 +462,53 @@
 
             <!-- RIGHT COLUMN -->
             <div class="column col-right">
-                <!-- RECOVERY GAUGE -->
-                <div class="panel large">
-                    <div class="panel-title">â³ Recovery Status</div>
+                <div class="panel large pink">
+                    <div class="panel-title">â³ RECOVERY</div>
                     <div class="panel-content">
-                        <div class="gauge-container">
-                            <div class="gauge-outer">
-                                <div class="gauge-inner">
-                                    <div class="gauge-value" id="recoveryValue">95</div>
-                                    <div class="gauge-label">%</div>
-                                </div>
+                        <div style="text-align: center; font-size: 48px; font-weight: 900; margin: 20px 0;">95%</div>
+                        <div class="data-grid" style="text-align: center;">
+                            <div class="data-grid-row" style="justify-content: center;">
+                                <span style="font-weight: 900;">READY âœ“</span>
                             </div>
                         </div>
-                        <div style="text-align: center; margin-top: 6px;">
-                            <span class="stat-value">READY âœ“</span>
-                        </div>
                     </div>
                 </div>
 
-                <!-- CONSISTENCY -->
-                <div class="panel small">
-                    <div class="panel-title">ðŸ“ˆ Consistency</div>
+                <div class="panel small blue">
+                    <div class="panel-title">ðŸ“ˆ CONSISTENCY</div>
                     <div class="panel-content">
-                        <div class="stat-line">
-                            <span class="stat-label">Training:</span>
-                            <span class="stat-value" id="consistency">--</span>
+                        <div class="data-line">
+                            <span class="data-label">TRAINING:</span>
+                            <span class="data-value" id="consistency">0%</span>
                         </div>
-                        <div class="lcars-bar">
-                            <div class="lcars-bar-fill" id="consistencyBar" style="width: 0%;"></div>
+                        <div style="background: rgba(0,0,0,0.3); height: 8px; margin: 8px 0; border-radius: 4px;">
+                            <div style="background: rgba(0,0,0,0.6); height: 100%; border-radius: 4px; width: 0%;" id="consistencyBar"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- INSIGHTS -->
-                <div class="panel small">
-                    <div class="panel-title">ðŸ” Analysis</div>
-                    <div class="panel-content" id="insights" style="font-size: 10px; line-height: 1.4; color: #00d9ff;">
-                        Awaiting data...
+                <div class="panel small cyan">
+                    <div class="panel-title">ðŸ” ANALYSIS</div>
+                    <div class="panel-content" id="analysis" style="font-size: 10px;">
+                        AWAITING DATA
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- AUTHENTISCHER FOOTER -->
+        <!-- FOOTER -->
         <div class="footer">
             <div class="footer-item">
-                <div class="footer-dot"></div>
-                <span>DATA FEED ACTIVE</span>
+                <span style="font-size: 12px; font-weight: 900;">â—† STATUS â—†</span>
+                <span id="footerStatus">SYSTEM NOMINAL</span>
             </div>
-            <div class="footer-item" id="lastUpdate">
-                â—† LAST UPDATE: --:-- â—†
+            <div class="footer-item blue">
+                <span style="font-size: 12px; font-weight: 900;">â—† TIME â—†</span>
+                <span id="footerTime">--:-- CET</span>
             </div>
-            <div class="footer-item">
-                <span>JARVIS OPERATIONAL</span>
-                <div class="footer-dot"></div>
+            <div class="footer-item pink">
+                <span style="font-size: 12px; font-weight: 900;">â—† DATA â—†</span>
+                <span id="footerData">LIVE UPDATE</span>
             </div>
         </div>
     </div>
@@ -626,114 +526,27 @@
           }
         ];
 
-        let charts = {};
-
-        function initCharts() {
-            const labels = allData.map((_, i) => `D${i + 1}`);
-            const energyData = allData.map(d => d.energy || 0);
-
-            // ENERGY TREND
-            const ctx1 = document.getElementById('energyTrendChart').getContext('2d');
-            if (charts.energyTrend) charts.energyTrend.destroy();
-            charts.energyTrend = new Chart(ctx1, {
-                type: 'line',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Energy Level',
-                        data: energyData,
-                        borderColor: '#ff6e1a',
-                        backgroundColor: 'rgba(255, 110, 26, 0.15)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#ffd60a',
-                        pointRadius: 6,
-                        pointBorderColor: '#ff6e1a',
-                        pointBorderWidth: 2,
-                        pointHoverRadius: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#00d9ff', font: { size: 11, family: 'Orbitron' } } }
-                    },
-                    scales: {
-                        y: {
-                            max: 10,
-                            ticks: { color: '#00d9ff', font: { size: 10 } },
-                            grid: { color: 'rgba(0, 217, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: '#00d9ff', font: { size: 10 } },
-                            grid: { color: 'rgba(0, 217, 255, 0.1)' }
-                        }
-                    }
-                }
-            });
-
-            // TRAINING PIE
-            const ctx2 = document.getElementById('trainingChart').getContext('2d');
-            const trainingSessions = allData.filter(d => d.training).length;
-            if (charts.training) charts.training.destroy();
-            charts.training = new Chart(ctx2, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Trained', 'Rest'],
-                    datasets: [{
-                        data: [trainingSessions, allData.length - trainingSessions],
-                        backgroundColor: ['#ff6e1a', 'rgba(0, 217, 255, 0.2)'],
-                        borderColor: '#ffd60a',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#00d9ff', font: { size: 10, family: 'Orbitron' } } } }
-                }
-            });
-
-            // RECHT BAR
-            const ctx3 = document.getElementById('rechtChart').getContext('2d');
-            const rechtSessions = allData.filter(d => d.recht).length;
-            if (charts.recht) charts.recht.destroy();
-            charts.recht = new Chart(ctx3, {
-                type: 'bar',
-                data: {
-                    labels: ['Recht', 'Rest'],
-                    datasets: [{
-                        data: [rechtSessions, allData.length - rechtSessions],
-                        backgroundColor: ['#ff6e1a', 'rgba(0, 217, 255, 0.2)'],
-                        borderColor: '#ffd60a',
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#00d9ff', font: { size: 10, family: 'Orbitron' } } } },
-                    scales: { x: { ticks: { color: '#00d9ff' }, grid: { color: 'rgba(0, 217, 255, 0.1)' } } }
-                }
-            });
-        }
-
         function updateDashboard() {
             if (allData.length === 0) return;
 
             const lastDay = allData[allData.length - 1];
 
-            document.getElementById('energyValue').textContent = lastDay.energy || 0;
+            // Header
+            document.getElementById('headerEnergy').textContent = lastDay.energy + '/10';
 
+            // Energy
+            document.getElementById('energyGauge').textContent = lastDay.energy + '/10';
+            document.getElementById('energyLevel').textContent = lastDay.energy;
+
+            // Sleep
+            document.getElementById('sleepHours').textContent = lastDay.sleep + 'h';
             const sleepValues = allData.filter(d => d.sleep).map(d => d.sleep);
             if (sleepValues.length > 0) {
                 const avgSleep = (sleepValues.reduce((a, b) => a + b) / sleepValues.length).toFixed(1);
                 document.getElementById('sleepAvg').textContent = avgSleep + 'h';
             }
 
+            // Training
             const trainingSessions = allData.filter(d => d.training).length;
             const trainingHours = (allData.reduce((sum, d) => sum + (d.trainingMinutes || 0), 0) / 60).toFixed(1);
             document.getElementById('trainingSessions').textContent = `${trainingSessions}/${allData.length}`;
@@ -743,40 +556,30 @@
             document.getElementById('consistency').textContent = consistency + '%';
             document.getElementById('consistencyBar').style.width = consistency + '%';
 
+            // Recht
             const rechtSessions = allData.filter(d => d.recht).length;
             const rechtHours = (allData.reduce((sum, d) => sum + (d.rechtMinutes || 0), 0) / 60).toFixed(1);
             document.getElementById('rechtSessions').textContent = `${rechtSessions}/${allData.length}`;
             document.getElementById('rechtHours').textContent = `${rechtHours}h`;
 
+            // Analysis
             const avgEnergy = (allData.reduce((sum, d) => sum + (d.energy || 0), 0) / allData.length).toFixed(1);
-            let insight = 'ðŸ“Š System monitoring...';
-            if (avgEnergy < 5) insight = 'âš ï¸ Energy low. Rest advised.';
-            else if (avgEnergy >= 7) insight = 'âœ“ Energy optimal. Proceed.';
-            else insight = 'â‰ˆ Energy stable. Monitor.';
-            document.getElementById('insights').innerHTML = insight;
-
-            initCharts();
+            let insight = 'MONITORING...';
+            if (avgEnergy < 5) insight = 'LOW ENERGY - REST ADVISED';
+            else if (avgEnergy >= 7) insight = 'ENERGY OPTIMAL';
+            else insight = 'ENERGY STABLE';
+            document.getElementById('analysis').innerHTML = insight;
         }
 
         function updateTime() {
             const now = new Date();
             const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('time').textContent = time + ' CET';
-            document.getElementById('lastUpdate').textContent = 'â—† LAST UPDATE: ' + time + ' â—†';
+            document.getElementById('headerTime').textContent = time;
+            document.getElementById('footerTime').textContent = time + ' CET';
         }
 
-        function updateStardate() {
-            const now = new Date();
-            const year = now.getFullYear() - 2000;
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            document.getElementById('stardate').textContent = `STARDATE ${year}${month}${day}`;
-        }
-
-        updateStardate();
         updateTime();
         updateDashboard();
-
         setInterval(updateTime, 1000);
     </script>
 
