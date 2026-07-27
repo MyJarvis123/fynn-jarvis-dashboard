@@ -13,38 +13,73 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
             color: #e0e0e0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
             overflow-x: hidden;
             min-height: 100vh;
         }
 
         .container {
-            width: 100vw;
+            width: 100%;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 24px;
-            gap: 24px;
+            padding: 32px;
+            gap: 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+            animation: fadeIn 0.6s ease-out;
         }
 
-        /* GLASSMORPHISM EFFECT */
-        .glass {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 16px;
-            padding: 24px;
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            transition: all 0.3s ease;
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
-        .glass:hover {
-            background: rgba(255, 255, 255, 0.12);
-            border-color: rgba(0, 255, 200, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(0, 255, 200, 0.2);
+        /* CARD BASE STYLE */
+        .card {
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            animation: slideUp 0.5s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .card:nth-child(1) { animation-delay: 0.05s; }
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.15s; }
+        .card:nth-child(4) { animation-delay: 0.2s; }
+        .card:nth-child(5) { animation-delay: 0.25s; }
+        .card:nth-child(6) { animation-delay: 0.3s; }
+        .card:nth-child(7) { animation-delay: 0.35s; }
+        .card:nth-child(8) { animation-delay: 0.4s; }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card:hover {
+            border-color: rgba(0, 255, 200, 0.4);
+            background: rgba(20, 20, 40, 1);
+            box-shadow: 0 8px 32px rgba(0, 255, 200, 0.1);
+            transform: translateY(-2px);
         }
 
         /* HEADER */
@@ -53,20 +88,19 @@
             justify-content: space-between;
             align-items: center;
             gap: 24px;
+            margin-bottom: 12px;
         }
 
         .header-title {
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 700;
             color: #00ffc8;
-            letter-spacing: 2px;
-            text-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+            letter-spacing: 1px;
         }
 
         .header-info {
             display: flex;
-            gap: 16px;
-            font-size: 14px;
+            gap: 24px;
         }
 
         .info-item {
@@ -77,27 +111,104 @@
         }
 
         .info-label {
-            color: #888;
-            font-size: 12px;
+            color: #666;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 600;
         }
 
         .info-value {
             color: #00ffc8;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 16px;
+        }
+
+        /* CARD TITLE */
+        .card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #b0b0b0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.1);
+        }
+
+        /* BIG VALUE WITH ANIMATION */
+        .big-value {
+            font-size: 48px;
+            font-weight: 700;
+            color: #00ffc8;
+            text-align: center;
+            margin: 16px 0;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                text-shadow: 0 0 10px rgba(0, 255, 200, 0.3);
+            }
+            50% {
+                text-shadow: 0 0 30px rgba(0, 255, 200, 0.6);
+            }
+        }
+
+        /* DATA LINES */
+        .data-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 13px;
+            color: #999;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            transition: color 0.3s ease;
+        }
+
+        .data-line:last-child {
+            border-bottom: none;
+        }
+
+        .data-line:hover {
+            color: #b0b0b0;
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 0.5px;
+        }
+
+        .data-value {
+            color: #00ffc8;
+            font-weight: 700;
+            font-size: 13px;
+            animation: countUp 0.6s ease-out;
+        }
+
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* CONTENT GRID */
         .content {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
             flex: 1;
         }
 
-        /* LARGE CARD (2 columns) */
         .large {
             grid-column: span 2;
         }
@@ -108,70 +219,24 @@
             }
         }
 
-        /* CARD TITLE */
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            color: #00ffc8;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(0, 255, 200, 0.2);
-        }
-
-        /* BIG VALUE */
-        .big-value {
-            font-size: 56px;
-            font-weight: 700;
-            color: #00ffc8;
-            text-align: center;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
-        }
-
-        /* DATA LINES */
-        .data-line {
-            display: flex;
-            justify-content: space-between;
-            margin: 12px 0;
-            font-size: 14px;
-            color: #b0b0b0;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .data-label {
-            font-weight: 600;
-            color: #888;
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
-        }
-
-        .data-value {
-            color: #00ffc8;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
         /* CHART CONTAINER */
         .chart-container {
             position: relative;
             height: 200px;
             margin: 20px 0;
+            animation: fadeIn 0.8s ease-out 0.3s both;
         }
 
         .small-chart {
             height: 150px;
         }
 
-        /* PROGRESS BAR */
+        /* PROGRESS BAR WITH ANIMATION */
         .progress-bar {
             width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 3px;
             overflow: hidden;
             margin: 12px 0;
         }
@@ -179,35 +244,52 @@
         .progress-fill {
             height: 100%;
             background: linear-gradient(90deg, #00ffc8 0%, #00d4aa 100%);
-            border-radius: 4px;
-            transition: width 0.3s ease;
+            border-radius: 3px;
+            animation: fillProgress 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fillProgress {
+            from {
+                width: 0%;
+            }
+            to {
+                width: var(--width, 0%);
+            }
+        }
+
+        /* ORANGE ACCENT FOR IMPORTANT CHARTS */
+        .chart-accent {
+            color: #ff9500;
         }
 
         /* FOOTER */
         .footer {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
             gap: 24px;
             padding-top: 24px;
             border-top: 1px solid rgba(0, 255, 200, 0.1);
+            margin-top: 12px;
         }
 
         .footer-item {
-            flex: 1;
             text-align: center;
         }
 
         .footer-label {
-            color: #888;
-            font-size: 12px;
+            color: #666;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
+            font-weight: 600;
         }
 
         .footer-value {
             color: #00ffc8;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
+            animation: fadeIn 0.6s ease-out 0.4s both;
         }
 
         /* SCROLLBAR */
@@ -216,16 +298,16 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(0, 255, 200, 0.3);
+            background: rgba(0, 255, 200, 0.2);
             border-radius: 4px;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 255, 200, 0.6);
+            background: rgba(0, 255, 200, 0.4);
         }
 
         canvas {
@@ -237,7 +319,7 @@
 
     <div class="container">
         <!-- HEADER -->
-        <div class="header glass">
+        <div class="header">
             <div class="header-title">JARVIS</div>
             <div class="header-info">
                 <div class="info-item">
@@ -245,20 +327,20 @@
                     <span class="info-value" id="headerEnergy">-</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Time</span>
-                    <span class="info-value" id="headerTime">--:--</span>
-                </div>
-                <div class="info-item">
                     <span class="info-label">Status</span>
                     <span class="info-value">LIVE</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Time</span>
+                    <span class="info-value" id="headerTime">--:--</span>
                 </div>
             </div>
         </div>
 
         <!-- MAIN CONTENT -->
         <div class="content">
-            <!-- ENERGY -->
-            <div class="glass large">
+            <!-- ENERGY TREND (LARGE) -->
+            <div class="card large">
                 <div class="card-title">Energy Trend</div>
                 <div class="chart-container">
                     <canvas id="energyChart"></canvas>
@@ -266,7 +348,7 @@
             </div>
 
             <!-- ENERGY CURRENT -->
-            <div class="glass">
+            <div class="card">
                 <div class="card-title">Current Energy</div>
                 <div class="big-value" id="energyValue">7/10</div>
                 <div class="data-line">
@@ -280,8 +362,8 @@
             </div>
 
             <!-- SLEEP -->
-            <div class="glass">
-                <div class="card-title">Sleep</div>
+            <div class="card">
+                <div class="card-title">Sleep Quality</div>
                 <div class="data-line">
                     <span class="data-label">Hours</span>
                     <span class="data-value" id="sleepHours">9h</span>
@@ -297,7 +379,7 @@
             </div>
 
             <!-- TRAINING -->
-            <div class="glass">
+            <div class="card">
                 <div class="card-title">Training</div>
                 <div class="chart-container small-chart">
                     <canvas id="trainingChart"></canvas>
@@ -313,7 +395,7 @@
             </div>
 
             <!-- RECHT -->
-            <div class="glass">
+            <div class="card">
                 <div class="card-title">Recht-Crash</div>
                 <div class="chart-container small-chart">
                     <canvas id="rechtChart"></canvas>
@@ -329,11 +411,11 @@
             </div>
 
             <!-- RECOVERY -->
-            <div class="glass">
-                <div class="card-title">Recovery</div>
+            <div class="card">
+                <div class="card-title">Recovery Status</div>
                 <div class="big-value" id="recoveryValue">95%</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" id="recoveryBar" style="width: 95%;"></div>
+                    <div class="progress-fill" id="recoveryBar" style="--width: 95%;"></div>
                 </div>
                 <div class="data-line">
                     <span class="data-label">Status</span>
@@ -342,11 +424,11 @@
             </div>
 
             <!-- CONSISTENCY -->
-            <div class="glass">
+            <div class="card">
                 <div class="card-title">Consistency</div>
                 <div class="big-value" id="consistency">0%</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" id="consistencyBar" style="width: 0%;"></div>
+                    <div class="progress-fill" id="consistencyBar" style="--width: 0%;"></div>
                 </div>
                 <div class="data-line">
                     <span class="data-label">Target</span>
@@ -354,28 +436,26 @@
                 </div>
             </div>
 
-            <!-- ANALYSIS -->
-            <div class="glass large">
+            <!-- ANALYSIS (LARGE) -->
+            <div class="card large">
                 <div class="card-title">Analysis</div>
-                <div style="color: #b0b0b0; font-size: 14px; line-height: 1.6;" id="analysis">
+                <div style="color: #999; font-size: 14px; line-height: 1.8;" id="analysis">
                     MONITORING...
                 </div>
-            </div>
-        </div>
-
-        <!-- FOOTER -->
-        <div class="glass footer">
-            <div class="footer-item">
-                <div class="footer-label">Status</div>
-                <div class="footer-value" id="footerStatus">ONLINE</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">Data</div>
-                <div class="footer-value" id="footerData">LIVE</div>
-            </div>
-            <div class="footer-item">
-                <div class="footer-label">Update</div>
-                <div class="footer-value" id="footerUpdate">Ready</div>
+                <div class="footer">
+                    <div class="footer-item">
+                        <div class="footer-label">Status</div>
+                        <div class="footer-value">ONLINE</div>
+                    </div>
+                    <div class="footer-item">
+                        <div class="footer-label">Data</div>
+                        <div class="footer-value">LIVE</div>
+                    </div>
+                    <div class="footer-item">
+                        <div class="footer-label">System</div>
+                        <div class="footer-value">READY</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -412,31 +492,35 @@
                         label: 'Energy Level',
                         data: energyData,
                         borderColor: '#00ffc8',
-                        backgroundColor: 'rgba(0, 255, 200, 0.1)',
+                        backgroundColor: 'rgba(0, 255, 200, 0.08)',
                         fill: true,
                         tension: 0.4,
                         borderWidth: 2,
                         pointBackgroundColor: '#00ffc8',
                         pointRadius: 5,
-                        pointBorderColor: '#00ffc8',
+                        pointBorderColor: '#1a1a2e',
                         pointBorderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
                     plugins: {
-                        legend: { labels: { color: '#888', font: { size: 13, weight: 'bold' } } }
+                        legend: { labels: { color: '#666', font: { size: 12, weight: 'bold' } } }
                     },
                     scales: {
                         y: {
                             max: 10,
-                            ticks: { color: '#888', font: { size: 12, weight: 'bold' } },
-                            grid: { color: 'rgba(0, 255, 200, 0.1)' }
+                            ticks: { color: '#666', font: { size: 11, weight: 'bold' } },
+                            grid: { color: 'rgba(0, 255, 200, 0.05)' }
                         },
                         x: {
-                            ticks: { color: '#888', font: { size: 12, weight: 'bold' } },
-                            grid: { color: 'rgba(0, 255, 200, 0.05)' }
+                            ticks: { color: '#666', font: { size: 11, weight: 'bold' } },
+                            grid: { color: 'rgba(0, 255, 200, 0.03)' }
                         }
                     }
                 }
@@ -452,15 +536,19 @@
                     labels: ['Trained', 'Rest'],
                     datasets: [{
                         data: [trainingSessions, allData.length - trainingSessions],
-                        backgroundColor: ['rgba(0, 255, 200, 0.8)', 'rgba(255, 255, 255, 0.1)'],
-                        borderColor: 'rgba(0, 255, 200, 0.3)',
-                        borderWidth: 1
+                        backgroundColor: ['#ff9500', 'rgba(255, 255, 255, 0.1)'],
+                        borderColor: '#1a1a2e',
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#888', font: { size: 11, weight: 'bold' } } } }
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
+                    plugins: { legend: { labels: { color: '#666', font: { size: 11, weight: 'bold' } } } }
                 }
             });
 
@@ -474,8 +562,8 @@
                     labels: ['Done', 'Pending'],
                     datasets: [{
                         data: [rechtSessions, allData.length - rechtSessions],
-                        backgroundColor: ['rgba(0, 255, 200, 0.8)', 'rgba(255, 255, 255, 0.1)'],
-                        borderColor: 'rgba(0, 255, 200, 0.3)',
+                        backgroundColor: ['#ff9500', 'rgba(255, 255, 255, 0.1)'],
+                        borderColor: '#1a1a2e',
                         borderWidth: 1
                     }]
                 },
@@ -483,11 +571,15 @@
                     indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeInOutQuart'
+                    },
                     plugins: { legend: { display: false } },
                     scales: {
                         x: {
-                            ticks: { color: '#888', font: { weight: 'bold' } },
-                            grid: { color: 'rgba(0, 255, 200, 0.05)' }
+                            ticks: { color: '#666', font: { weight: 'bold', size: 11 } },
+                            grid: { color: 'rgba(0, 255, 200, 0.03)' }
                         }
                     }
                 }
@@ -517,7 +609,7 @@
 
             const consistency = ((trainingSessions / allData.length) * 100).toFixed(0);
             document.getElementById('consistency').textContent = consistency + '%';
-            document.getElementById('consistencyBar').style.width = consistency + '%';
+            document.getElementById('consistencyBar').style.setProperty('--width', consistency + '%');
 
             const rechtSessions = allData.filter(d => d.recht).length;
             const rechtHours = (allData.reduce((sum, d) => sum + (d.rechtMinutes || 0), 0) / 60).toFixed(1);
@@ -525,10 +617,10 @@
             document.getElementById('rechtHours').textContent = rechtHours + 'h';
 
             const avgEnergy = (allData.reduce((sum, d) => sum + (d.energy || 0), 0) / allData.length).toFixed(1);
-            let insight = 'Monitoring data. Keep consistent.';
-            if (avgEnergy < 5) insight = '⚠️ Energy low. Rest advised.';
-            else if (avgEnergy >= 7) insight = '✓ Energy optimal. Training ready.';
-            else insight = '✓ Energy stable. Continue plan.';
+            let insight = '✓ Monitoring data. Keep consistent with your plan.';
+            if (avgEnergy < 5) insight = '⚠️ Energy low. Rest advised. Recovery needed.';
+            else if (avgEnergy >= 7) insight = '✓ Energy optimal. Training ready. Momentum strong.';
+            else insight = '✓ Energy stable. Continue execution. On track.';
             document.getElementById('analysis').innerHTML = insight;
 
             initCharts();
@@ -538,7 +630,6 @@
             const now = new Date();
             const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('headerTime').textContent = time;
-            document.getElementById('footerUpdate').textContent = time;
         }
 
         updateTime();
