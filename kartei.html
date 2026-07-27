@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KARTEI QUEST</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Inter:wght@400;600;700&family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10101c; --bg-panel: #1c1c30; --bg-panel-2: #24243c;
+    --black: #000000; --white: #fcfcfc;
+    --red: #d82800; --red-dark: #941800;
+    --blue: #0058f8; --blue-light: #3cbcfc;
+    --yellow: #f8b800; --green: #00b800; --green-dark: #007800;
+    --gray: #7c7c7c;
+    --font-display: 'Press Start 2P', monospace;
+    --font-body: 'VT323', monospace;
+    --border-w: 4px; --radius: 0px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background: var(--scanlines, none), var(--bg);
+    background-attachment:fixed;
+    color:var(--white);
+    font-family:var(--font-body);
+    font-size:20px;
+    min-height:100vh;
+  }
+  body.theme-nes{ --scanlines: repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 3px); }
+  body.theme-gameboy{ --scanlines: repeating-linear-gradient(0deg, rgba(0,0,0,0.06) 0px, rgba(0,0,0,0.06) 1px, transparent 1px, transparent 3px); }
+  body.theme-dungeon{ --scanlines: repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 3px); }
+  body.theme-terminal{ --scanlines: repeating-linear-gradient(0deg, rgba(0,255,80,0.06) 0px, rgba(0,255,80,0.06) 1px, transparent 1px, transparent 3px); }
+  body.theme-modern{ --scanlines:none; --border-w:1px; --radius:10px; --font-display:'Inter',sans-serif; --font-body:'Inter',sans-serif; }
+  body.theme-cozy{ --scanlines:none; --border-w:2px; --radius:16px; --font-display:'Quicksand',sans-serif; --font-body:'Quicksand',sans-serif; }
+
+  #app{max-width:960px;margin:0 auto;padding:20px 16px 90px;}
+  .px{font-family:var(--font-display);}
+
+  .bevel{ border:var(--border-w) solid var(--black); box-shadow: inset 3px 3px 0 rgba(255,255,255,0.35), inset -3px -3px 0 rgba(0,0,0,0.45); }
+  body.theme-modern .bevel, body.theme-cozy .bevel{ box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+
+  header.top{ background:var(--bg-panel); border:var(--border-w) solid var(--black); border-radius:var(--radius); box-shadow: 6px 6px 0 var(--black); padding:14px 16px;margin-bottom:22px; display:flex;flex-direction:column;gap:10px; }
+  body.theme-modern header.top, body.theme-cozy header.top{ box-shadow:0 4px 16px rgba(0,0,0,0.15); }
+  header.top .title-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+  header.top h1{ font-size:16px;margin:0;letter-spacing:1px;color:var(--yellow); text-shadow:2px 2px 0 var(--black); font-family:var(--font-display); }
+  body.theme-modern header.top h1, body.theme-cozy header.top h1{ text-shadow:none; }
+  nav.crumbs{font-size:14px;color:var(--blue-light);}
+  nav.crumbs button{ background:none;border:none;font-family:var(--font-body);font-size:16px;color:var(--blue-light); cursor:pointer;padding:0;text-decoration:underline; }
+  nav.crumbs button:hover{color:var(--yellow);}
+
+  .xp-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .rank-badge{ font-size:11px;background:var(--red);color:var(--white); padding:4px 8px;border:3px solid var(--black); border-radius:var(--radius); box-shadow:2px 2px 0 var(--black);white-space:nowrap; font-family:var(--font-display); }
+  .xp-bar-outer{ flex:1;min-width:140px;height:16px;background:var(--black); border:3px solid var(--black); border-radius:var(--radius); position:relative; }
+  .xp-bar-inner{height:100%;background:repeating-linear-gradient(90deg, var(--green) 0 6px, var(--green-dark) 6px 12px);transition:width .4s steps(10);}
+  body.theme-modern .xp-bar-inner, body.theme-cozy .xp-bar-inner{ background:var(--green); transition:width .4s ease; }
+  .xp-label{font-size:12px;color:var(--gray);white-space:nowrap;}
+  .streak-badge{font-size:11px;background:var(--yellow);color:var(--black);padding:4px 8px;border:3px solid var(--black);border-radius:var(--radius);white-space:nowrap;font-family:var(--font-display);}
+  .icon-btn{ background:var(--bg-panel-2);border:3px solid var(--black);color:var(--white);padding:6px 10px;font-family:var(--font-display);font-size:11px;border-radius:var(--radius);cursor:pointer; }
+  .icon-btn:hover{filter:brightness(1.2);}
+
+  .deck-grid{display:grid;grid-template-columns:repeat(auto-fill, minmax(200px,1fr));gap:16px;}
+  .deck-box{ background:var(--bg-panel);border:var(--border-w) solid var(--black); border-radius:var(--radius); box-shadow:5px 5px 0 var(--black); padding:14px;cursor:pointer;position:relative; transition:transform .08s; }
+  body.theme-modern .deck-box, body.theme-cozy .deck-box{ box-shadow:0 2px 10px rgba(0,0,0,0.12); }
+  .deck-box:hover{transform:translate(-2px,-2px);}
+  .deck-box:active{transform:translate(2px,2px);}
+  .deck-box:focus-visible{outline:3px solid var(--blue-light);outline-offset:2px;}
+  .deck-box .cart{ font-size:11px;background:var(--blue);color:var(--white);display:inline-block; padding:3px 6px;border:2px solid var(--black);margin-bottom:8px;border-radius:var(--radius); font-family:var(--font-display); }
+  .deck-box h3{font-size:14px;margin:4px 0 8px;color:var(--white);line-height:1.5;}
+  .deck-box .meta{font-size:15px;color:var(--gray);}
+  .deck-box .deck-lvl{font-size:11px;color:var(--yellow);margin-top:6px;font-family:var(--font-display);}
+  .deck-box .due-badge{ display:inline-block;margin-top:10px;font-size:11px; background:var(--red);color:#fff;padding:4px 7px;border:2px solid var(--black);border-radius:var(--radius); }
+  .deck-box .due-badge.none{background:var(--gray);}
+
+  .new-deck-box{ border:var(--border-w) dashed var(--gray);background:transparent;border-radius:var(--radius); display:flex;align-items:center;justify-content:center;min-height:110px; color:var(--gray);font-size:13px;text-align:center;cursor:pointer; }
+  .new-deck-box:hover{border-color:var(--yellow);color:var(--yellow);}
+
+  .empty-state{text-align:center;padding:50px 20px;color:var(--gray);font-size:16px;}
+  .empty-state .px{display:block;font-size:14px;color:var(--yellow);margin-bottom:14px;line-height:1.8;}
+
+  button{cursor:pointer;font-family:var(--font-body);}
+  .btn{ font-family:var(--font-display);font-size:11px; border:var(--border-w) solid var(--black); border-radius:var(--radius); background:var(--bg-panel-2);color:var(--white); padding:12px 14px; box-shadow:inset 2px 2px 0 rgba(255,255,255,0.25), inset -2px -2px 0 rgba(0,0,0,0.4), 4px 4px 0 var(--black); }
+  body.theme-modern .btn, body.theme-cozy .btn{ box-shadow:0 2px 6px rgba(0,0,0,0.15); }
+  .btn:hover{filter:brightness(1.15);}
+  .btn:active{transform:translate(2px,2px);}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;filter:none;}
+  .btn.primary{background:var(--red);}
+  .btn.good{background:var(--green-dark);}
+  .btn.ghost{background:var(--bg-panel);}
+  .btn:focus-visible{outline:3px solid var(--blue-light);outline-offset:2px;}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+
+  .card-row{ display:flex;justify-content:space-between;align-items:flex-start;gap:12px; background:var(--bg-panel);border:3px solid var(--black);border-radius:var(--radius); padding:12px 14px;margin-bottom:10px;box-shadow:3px 3px 0 var(--black); }
+  body.theme-modern .card-row, body.theme-cozy .card-row{ box-shadow:0 1px 6px rgba(0,0,0,0.1); }
+  .card-row .q{font-size:18px;color:var(--white);}
+  .card-row .a{color:var(--blue-light);margin-top:3px;font-size:17px;}
+  .card-row .due{font-size:13px;color:var(--gray);white-space:nowrap;}
+  .card-row .rowbtn{background:none;border:none;color:var(--gray);font-size:16px;padding:2px 4px;}
+  .card-row .rowbtn:hover{color:var(--yellow);}
+  .card-row .rowbtn.del:hover{color:var(--red);}
+
+  .panel{background:var(--bg-panel);border:var(--border-w) solid var(--black);border-radius:var(--radius);padding:18px;margin-bottom:20px;box-shadow:5px 5px 0 var(--black);}
+  body.theme-modern .panel, body.theme-cozy .panel{ box-shadow:0 2px 14px rgba(0,0,0,0.12); }
+  .panel h2{font-family:var(--font-display);font-size:13px;margin-top:0;color:var(--yellow);}
+  label{display:block;font-size:14px;color:var(--blue-light);margin-bottom:5px;margin-top:14px;letter-spacing:1px;}
+  input[type=text], textarea, select{ width:100%;font-family:var(--font-body);font-size:18px; border:3px solid var(--black);border-radius:var(--radius);padding:9px;background:var(--bg);color:var(--white); }
+  textarea{min-height:130px;resize:vertical;}
+  input[type=text]:focus, textarea:focus, select:focus{outline:2px solid var(--blue-light);}
+  .hint{font-size:14px;color:var(--gray);margin-top:8px;line-height:1.5;}
+  input[type=file]{color:var(--white);}
+  .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;}
+  .theme-swatches{display:flex;gap:10px;flex-wrap:wrap;}
+  .theme-swatch{border:3px solid var(--black);border-radius:var(--radius);padding:8px 12px;font-size:12px;font-family:var(--font-display);cursor:pointer;background:var(--bg-panel-2);color:var(--white);}
+  .theme-swatch.active{outline:3px solid var(--yellow);}
+  .keybind-btn{font-family:var(--font-display);font-size:11px;border:2px solid var(--black);background:var(--bg-panel-2);color:var(--white);padding:6px 10px;border-radius:var(--radius);}
+  .keybind-btn.listening{background:var(--red);}
+
+  .study-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0;}
+  .progress{font-size:14px;color:var(--gray);margin-bottom:10px;font-family:var(--font-display);}
+  .battle-hud{display:flex;justify-content:space-between;width:100%;max-width:480px;margin-bottom:12px;font-family:var(--font-display);font-size:12px;}
+  .timer-outer{width:100%;max-width:480px;height:10px;background:var(--black);border:2px solid var(--black);margin-bottom:14px;}
+  .timer-inner{height:100%;background:var(--yellow);transition:width 1s linear;}
+  .card-stage{perspective:1400px;width:100%;max-width:480px;}
+  .index-card{ position:relative;width:100%;min-height:250px; transform-style:preserve-3d;transition:transform .45s steps(12); cursor:pointer; }
+  body.theme-modern .index-card, body.theme-cozy .index-card{ transition:transform .45s ease; }
+  .index-card.flipped{transform:rotateY(180deg);}
+  .face{ position:absolute;inset:0;backface-visibility:hidden; background:var(--bg-panel);border:var(--border-w) solid var(--black);border-radius:var(--radius); box-shadow:6px 6px 0 var(--black); padding:26px 22px;display:flex;flex-direction:column; }
+  body.theme-modern .face, body.theme-cozy .face{ box-shadow:0 6px 22px rgba(0,0,0,0.18); }
+  .face .label{font-family:var(--font-display);font-size:10px;color:var(--yellow);margin-bottom:18px;letter-spacing:1px;}
+  .face .content{font-size:24px;line-height:1.5;flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--white);}
+  .face .hint-tap{text-align:center;font-size:13px;color:var(--gray);font-family:var(--font-display);}
+  .face.back{transform:rotateY(180deg);background:var(--bg-panel-2);}
+
+  .grade-row{display:flex;gap:8px;margin-top:22px;width:100%;max-width:480px;justify-content:center;flex-wrap:wrap;}
+  .grade-btn{ flex:1;min-width:90px;font-family:var(--font-display);font-size:10px; padding:12px 4px;border:3px solid var(--black);border-radius:var(--radius);background:var(--bg-panel-2);color:var(--white); display:flex;flex-direction:column;gap:5px;align-items:center; box-shadow:3px 3px 0 var(--black); }
+  body.theme-modern .grade-btn, body.theme-cozy .grade-btn{ box-shadow:0 2px 8px rgba(0,0,0,0.15); }
+  .grade-btn:active{transform:translate(2px,2px);}
+  .grade-btn .k{font-family:var(--font-body);font-size:13px;color:var(--gray);}
+  .grade-btn.again{background:var(--red-dark);}
+  .grade-btn.hard{background:var(--gray);}
+  .grade-btn.good{background:var(--blue);}
+  .grade-btn.easy{background:var(--green-dark);}
+
+  .mc-options{display:flex;flex-direction:column;gap:10px;width:100%;max-width:480px;margin-top:20px;}
+  .mc-opt{ font-family:var(--font-body);font-size:17px;text-align:left;padding:12px 14px; border:3px solid var(--black);border-radius:var(--radius);background:var(--bg-panel-2);color:var(--white); box-shadow:3px 3px 0 var(--black); }
+  .mc-opt.correct{background:var(--green-dark);}
+  .mc-opt.wrong{background:var(--red-dark);}
+  .mc-opt:disabled{cursor:default;}
+
+  .write-input{width:100%;max-width:480px;margin-top:18px;}
+  .write-input textarea{min-height:70px;}
+  .write-result{width:100%;max-width:480px;margin-top:12px;padding:12px;border:3px solid var(--black);border-radius:var(--radius);font-size:16px;}
+  .write-result.correct{background:var(--green-dark);}
+  .write-result.wrong{background:var(--red-dark);}
+
+  .done-panel{text-align:center;padding:40px 16px;}
+  .done-panel .px{font-size:16px;color:var(--yellow);line-height:1.9;}
+
+  #levelup-toast, #achievement-toast{ position:fixed;top:24px;left:50%;transform:translateX(-50%) translateY(-140%); background:var(--yellow);color:var(--black);border:4px solid var(--black); box-shadow:6px 6px 0 var(--black); font-family:var(--font-display);font-size:12px; padding:16px 22px;z-index:999;text-align:center; transition:transform .3s steps(8); }
+  #achievement-toast{background:var(--blue-light);}
+  #levelup-toast.show, #achievement-toast.show{ transform:translateX(-50%) translateY(0); }
+
+  .search-hit{background:var(--bg-panel);border:3px solid var(--black);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;cursor:pointer;}
+  .search-hit:hover{outline:2px solid var(--blue-light);}
+  .search-hit .deckname{font-size:12px;color:var(--yellow);font-family:var(--font-display);}
+
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+  .stat-box{background:var(--bg-panel-2);border:3px solid var(--black);border-radius:var(--radius);padding:14px;text-align:center;}
+  .stat-box .num{font-family:var(--font-display);font-size:20px;color:var(--yellow);}
+  .stat-box .lbl{font-size:13px;color:var(--gray);margin-top:6px;}
+  .ach-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;}
+  .ach-item{background:var(--bg-panel-2);border:3px solid var(--black);border-radius:var(--radius);padding:12px;opacity:0.35;}
+  .ach-item.unlocked{opacity:1;border-color:var(--yellow);}
+  .ach-item .name{font-family:var(--font-display);font-size:11px;color:var(--yellow);margin-bottom:6px;}
+
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);}
+  @media (prefers-reduced-motion: reduce){ .index-card, .deck-box{transition:none;} }
+  @media (max-width:520px){ header.top h1{font-size:13px;} .face .content{font-size:19px;} }
+</style>
+</head>
+<body class="theme-nes">
+<div id="app"><div class="empty-state px">LADE KARTEI...</div></div>
+<div id="levelup-toast" aria-live="polite"></div>
+<div id="achievement-toast" aria-live="polite"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "kartei-data-v3";
+  const XP_PER_CARD = 10;
+  const XP_BLITZ_BONUS = 5;
+
+  let state = {
+    decks: [], cards: [], globalXp: 0,
+    settings: {
+      theme: "nes", soundOn: true, volume: 0.15,
+      musicOn: true, musicVolume: 0.10,
+      keyboardEnabled: true,
+      keybinds: { flip: " ", again: "1", hard: "2", good: "3", easy: "4" },
+      cardOrder: "random"
+    },
+    streak: { count: 0, lastDate: null },
+    stats: { totalReviewed: 0, gradeCounts: { again:0, hard:0, good:0, easy:0 } },
+    achievements: []
+  };
+  let view = { name: "home" };
+  let storageReady = false;
+  let listeningForKey = null;
+
+  function uid(){ return Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+  function todayISO(){ const d=new Date(); d.setHours(0,0,0,0); return d.toISOString().slice(0,10); }
+  function addDays(iso, days){ const d = new Date(iso+"T00:00:00"); d.setDate(d.getDate()+days); return d.toISOString().slice(0,10); }
+  function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function normalizeAnswer(s){ return String(s).toLowerCase().trim().replace(/[.,;:!?"']/g,"").replace(/\s+/g," "); }
+
+  async function loadData(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        state.decks = Array.isArray(parsed.decks) ? parsed.decks : [];
+        state.cards = Array.isArray(parsed.cards) ? parsed.cards : [];
+        state.globalXp = typeof parsed.globalXp === "number" ? parsed.globalXp : 0;
+        if(parsed.settings) state.settings = Object.assign({}, state.settings, parsed.settings, {keybinds: Object.assign({}, state.settings.keybinds, parsed.settings.keybinds||{})});
+        if(parsed.streak) state.streak = parsed.streak;
+        if(parsed.stats) state.stats = parsed.stats;
+        if(Array.isArray(parsed.achievements)) state.achievements = parsed.achievements;
+      }
+    }catch(e){ console.log("Keine gespeicherten Daten gefunden, starte neu.", e); }
+    storageReady = true;
+  }
+  async function saveData(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ console.error("Speicherfehler:", e); alert("Speichern hat nicht geklappt (Speicher voll oder Privat-Modus?)."); }
+  }
+
+  let actx = null;
+  function ac(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); return actx; }
+  function beep(freq, start, dur, type, volMul){
+    if(!state.settings.soundOn || !freq) return;
+    try{
+      const ctx = ac();
+      const osc = ctx.createOscillator(); const gain = ctx.createGain();
+      osc.type = type || "square"; osc.frequency.value = freq;
+      const vol = state.settings.volume * (volMul!=null?volMul:1);
+      gain.gain.setValueAtTime(Math.max(0.0001,vol), ctx.currentTime+start);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+start+dur);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime+start); osc.stop(ctx.currentTime+start+dur+0.02);
+    }catch(e){}
+  }
+  function playSeq(notes){ let t=0; notes.forEach(n=>{ beep(n.f, t, n.d, n.type, n.v!=null?n.v:1); t += n.d*0.82; }); }
+
+  const SFX_THEMES = {
+    nes: {
+      flip:[{f:220,d:0.05,type:"square"},{f:330,d:0.06,type:"square"}],
+      again:[{f:180,d:0.12,type:"sawtooth",v:0.8},{f:120,d:0.16,type:"sawtooth",v:0.8}],
+      good:[{f:523,d:0.08,type:"square"},{f:659,d:0.08,type:"square"},{f:784,d:0.12,type:"square"}],
+      levelup:[523,659,784,1046].map(f=>({f,d:0.14,type:"square",v:1.1})),
+      tick:[{f:880,d:0.03,type:"square",v:0.5}]
+    },
+    gameboy: {
+      flip:[{f:196,d:0.05,type:"square"},{f:262,d:0.07,type:"square"}],
+      again:[{f:147,d:0.16,type:"square",v:0.75}],
+      good:[{f:392,d:0.09,type:"square"},{f:494,d:0.1,type:"square"}],
+      levelup:[392,494,587,784].map(f=>({f,d:0.13,type:"square",v:1})),
+      tick:[{f:660,d:0.03,type:"square",v:0.4}]
+    },
+    dungeon: {
+      flip:[{f:110,d:0.1,type:"triangle"}],
+      again:[{f:98,d:0.28,type:"sawtooth",v:0.8}],
+      good:[{f:196,d:0.14,type:"triangle"},{f:261,d:0.2,type:"triangle"}],
+      levelup:[196,247,294,392].map(f=>({f,d:0.22,type:"triangle",v:1.1})),
+      tick:[{f:220,d:0.05,type:"triangle",v:0.4}]
+    },
+    terminal: {
+      flip:[{f:1200,d:0.02,type:"square",v:0.6}],
+      again:[{f:300,d:0.16,type:"square",v:0.7}],
+      good:[{f:1000,d:0.04,type:"square",v:0.7},{f:1400,d:0.04,type:"square",v:0.7}],
+      levelup:[800,1000,1200,1600].map(f=>({f,d:0.06,type:"square",v:0.9})),
+      tick:[{f:1500,d:0.02,type:"square",v:0.3}]
+    },
+    modern: {
+      flip:[{f:440,d:0.07,type:"sine",v:0.8}],
+      again:[{f:220,d:0.16,type:"sine",v:0.7}],
+      good:[{f:660,d:0.09,type:"sine",v:0.8},{f:880,d:0.11,type:"sine",v:0.8}],
+      levelup:[440,554,659,880].map(f=>({f,d:0.16,type:"sine",v:0.9})),
+      tick:[{f:990,d:0.03,type:"sine",v:0.3}]
+    },
+    cozy: {
+      flip:[{f:392,d:0.09,type:"triangle",v:0.8}],
+      again:[{f:262,d:0.16,type:"triangle",v:0.7}],
+      good:[{f:523,d:0.11,type:"triangle",v:0.8},{f:659,d:0.13,type:"triangle",v:0.8}],
+      levelup:[523,659,784,988].map(f=>({f,d:0.17,type:"triangle",v:0.9})),
+      tick:[{f:784,d:0.04,type:"triangle",v:0.35}]
+    }
+  };
+  function sfx(){ return SFX_THEMES[state.settings.theme] || SFX_THEMES.nes; }
+  function sndFlip(){ playSeq(sfx().flip); }
+  function sndAgain(){ playSeq(sfx().again); }
+  function sndGood(){ playSeq(sfx().good); }
+  function sndLevelUp(){ playSeq(sfx().levelup); }
+  function sndTick(){ playSeq(sfx().tick); }
+
+  let musicGainNode = null, musicLoopTimer = null, musicNoiseNodes = [], musicToken = 0, musicStarted = false;
+  function ensureMusicGain(){
+    const ctx = ac();
+    if(!musicGainNode){ musicGainNode = ctx.createGain(); musicGainNode.connect(ctx.destination); }
+    return musicGainNode;
+  }
+  function updateMusicGain(){ if(musicGainNode) musicGainNode.gain.value = state.settings.musicOn ? state.settings.musicVolume : 0; }
+  function stopMusic(){
+    musicToken++;
+    if(musicLoopTimer){ clearTimeout(musicLoopTimer); musicLoopTimer=null; }
+    musicNoiseNodes.forEach(n=>{ try{n.stop&&n.stop();}catch(e){} try{n.disconnect&&n.disconnect();}catch(e){} });
+    musicNoiseNodes = [];
+  }
+  function startNoiseAmbient(kind, token){
+    if(token!==musicToken) return;
+    try{
+      const ctx = ac(); const gain = ensureMusicGain();
+      const bufSize = 2*ctx.sampleRate;
+      const buffer = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for(let i=0;i<bufSize;i++) data[i] = Math.random()*2-1;
+      const noise = ctx.createBufferSource(); noise.buffer=buffer; noise.loop=true;
+      const filter = ctx.createBiquadFilter();
+      if(kind==="wind"){ filter.type="bandpass"; filter.frequency.value=500; filter.Q.value=0.7; }
+      else if(kind==="hum"){ filter.type="lowpass"; filter.frequency.value=260; }
+      else { filter.type="lowpass"; filter.frequency.value=900; }
+      const ng = ctx.createGain(); ng.gain.value = kind==="hum" ? 0.35 : 0.22;
+      noise.connect(filter); filter.connect(ng); ng.connect(gain);
+      noise.start();
+      musicNoiseNodes.push(noise);
+    }catch(e){}
+  }
+  function playMusicLoop(notes, oscType, token){
+    if(token!==musicToken) return;
+    try{
+      const ctx = ac(); const gain = ensureMusicGain();
+      let t = 0;
+      notes.forEach(n => {
+        if(n.f){
+          const osc = ctx.createOscillator(); osc.type = oscType;
+          osc.frequency.value = n.f;
+          const g = ctx.createGain();
+          g.gain.setValueAtTime(0.001, ctx.currentTime+t);
+          g.gain.linearRampToValueAtTime(0.5, ctx.currentTime+t+0.02);
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+t+n.d*0.95);
+          osc.connect(g); g.connect(gain);
+          osc.start(ctx.currentTime+t); osc.stop(ctx.currentTime+t+n.d+0.02);
+          musicNoiseNodes.push(osc);
+        }
+        t += n.d;
+      });
+      musicLoopTimer = setTimeout(() => playMusicLoop(notes, oscType, token), Math.max(200, t*1000));
+    }catch(e){}
+  }
+  const MUSIC_THEMES = {
+    nes: (token) => playMusicLoop([{f:659,d:0.22},{f:784,d:0.22},{f:880,d:0.22},{f:784,d:0.22},{f:659,d:0.22},{f:523,d:0.22},{f:659,d:0.44},{f:0,d:0.22}], "square", token),
+    gameboy: (token) => playMusicLoop([{f:392,d:0.3},{f:0,d:0.15},{f:466,d:0.3},{f:0,d:0.15},{f:392,d:0.3},{f:0,d:0.15},{f:349,d:0.4},{f:0,d:0.3}], "square", token),
+    dungeon: (token) => { startNoiseAmbient("hum", token); playMusicLoop([{f:130.8,d:1.4},{f:0,d:1.4},{f:98,d:1.2},{f:0,d:2.0}], "triangle", token); },
+    terminal: (token) => { startNoiseAmbient("hum", token); playMusicLoop([{f:1046,d:0.05},{f:0,d:1.15},{f:1318,d:0.05},{f:0,d:0.95},{f:880,d:0.05},{f:0,d:1.45}], "square", token); },
+    modern: (token) => playMusicLoop([{f:440,d:1.2},{f:554,d:1.2},{f:659,d:1.2},{f:554,d:1.2}], "sine", token),
+    cozy: (token) => { startNoiseAmbient("wind", token); playMusicLoop([{f:523,d:0.45},{f:659,d:0.45},{f:784,d:0.45},{f:659,d:0.45},{f:0,d:0.9}], "triangle", token); }
+  };
+  function switchThemeMusic(){
+    stopMusic();
+    ensureMusicGain();
+    updateMusicGain();
+    const fn = MUSIC_THEMES[state.settings.theme] || MUSIC_THEMES.nes;
+    fn(musicToken);
+  }
+  function ensureMusicStarted(){
+    if(musicStarted) return;
+    musicStarted = true;
+    switchThemeMusic();
+    document.removeEventListener("click", ensureMusicStarted, true);
+    document.removeEventListener("keydown", ensureMusicStarted, true);
+  }
+  document.addEventListener("click", ensureMusicStarted, true);
+  document.addEventListener("keydown", ensureMusicStarted, true);
+
+  function xpForLevel(level){ return Math.round(100 * Math.pow(1.22, level-1)); }
+  function levelInfo(totalXp){
+    let level=1, remaining=totalXp, req=xpForLevel(1);
+    while(remaining>=req){ remaining-=req; level++; req=xpForLevel(level); }
+    return { level, xpInLevel:remaining, xpForNext:req };
+  }
+  function rankTitle(level){
+    if(level<3) return "Rekrut"; if(level<6) return "Streife"; if(level<9) return "Wachtmeister";
+    if(level<12) return "Kommissar"; if(level<16) return "Hauptkommissar"; return "Chef vom Dienst";
+  }
+  function showToast(el, html, sound){
+    el.innerHTML = html; el.classList.add("show"); if(sound) sound();
+    clearTimeout(el._t); el._t = setTimeout(()=>el.classList.remove("show"), 2400);
+  }
+  function showLevelUp(newLevel){ showToast(document.getElementById("levelup-toast"), `LEVEL UP!<br>Level ${newLevel} — ${rankTitle(newLevel)}`, sndLevelUp); }
+  function showAchievement(name){ showToast(document.getElementById("achievement-toast"), `ABZEICHEN FREIGESCHALTET:<br>${escapeHtml(name)}`, sndGood); }
+
+  const ACHIEVEMENTS = [
+    { id:"first_card", name:"Erste Karte gelernt", test:() => state.stats.totalReviewed >= 1 },
+    { id:"fifty_cards", name:"50 Karten gelernt", test:() => state.stats.totalReviewed >= 50 },
+    { id:"streak_7", name:"7 Tage Serie", test:() => state.streak.count >= 7 },
+    { id:"level_5", name:"Level 5 erreicht", test:() => levelInfo(state.globalXp).level >= 5 },
+    { id:"deck_cleared", name:"Fach für heute gemeistert", test:() => state.decks.some(d => cardsForDeck(d.id).length>0 && dueCardsForDeck(d.id).length===0) }
+  ];
+  function checkAchievements(){
+    ACHIEVEMENTS.forEach(a => {
+      if(!state.achievements.includes(a.id) && a.test()){
+        state.achievements.push(a.id);
+        showAchievement(a.name);
+      }
+    });
+  }
+
+  function updateStreak(){
+    const today = todayISO();
+    if(state.streak.lastDate === today) return;
+    if(state.streak.lastDate === addDays(today,-1)) state.streak.count += 1;
+    else state.streak.count = 1;
+    state.streak.lastDate = today;
+  }
+
+  async function awardXp(card, deck, bonus){
+    const today = todayISO();
+    if(card.lastXpDate === today) return;
+    card.lastXpDate = today;
+    const before = levelInfo(state.globalXp).level;
+    const amount = XP_PER_CARD + (bonus||0);
+    state.globalXp += amount;
+    deck.xp = (deck.xp||0) + amount;
+    updateStreak();
+    const after = levelInfo(state.globalXp).level;
+    await saveData();
+    if(after > before) showLevelUp(after);
+    checkAchievements();
+  }
+
+  function recordReview(grade){
+    state.stats.totalReviewed += 1;
+    state.stats.gradeCounts[grade] = (state.stats.gradeCounts[grade]||0) + 1;
+  }
+
+  function scheduleCard(card, grade){
+    if(card.ease==null) card.ease=2.5; if(card.interval==null) card.interval=0; if(card.reps==null) card.reps=0;
+    if(grade==="again"){ card.reps=0; card.interval=0; card.ease=Math.max(1.3,card.ease-0.2); card.due=todayISO(); }
+    else if(grade==="hard"){ card.interval=Math.max(1,Math.round((card.interval||1)*1.2)); card.ease=Math.max(1.3,card.ease-0.15); card.reps+=1; card.due=addDays(todayISO(),card.interval); }
+    else if(grade==="good"){ if(card.reps===0) card.interval=1; else if(card.reps===1) card.interval=6; else card.interval=Math.round(card.interval*card.ease); card.reps+=1; card.due=addDays(todayISO(),card.interval); }
+    else if(grade==="easy"){ card.interval=Math.max(4,Math.round((card.interval||1)*card.ease*1.3)); card.ease=card.ease+0.15; card.reps+=1; card.due=addDays(todayISO(),card.interval); }
+  }
+
+  function cardsForDeck(deckId){ return state.cards.filter(c=>c.deckId===deckId); }
+  function dueCardsForDeck(deckId){ const t=todayISO(); return cardsForDeck(deckId).filter(c=>!c.due||c.due<=t); }
+  function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+  function buildQueue(deckId, usePauken){
+    const source = usePauken ? cardsForDeck(deckId) : dueCardsForDeck(deckId);
+    let list = source.slice();
+    if(state.settings.cardOrder === "sequential") list.sort((a,b)=>(a.createdAt||0)-(b.createdAt||0));
+    else list = shuffle(list);
+    return list.map(c=>c.id);
+  }
+
+  function generateMcOptions(card){
+    let pool = state.cards.filter(c=>c.deckId===card.deckId && c.id!==card.id).map(c=>c.answer);
+    if(pool.length<3){
+      const others = state.cards.filter(c=>c.id!==card.id && c.answer!==card.answer).map(c=>c.answer);
+      pool = pool.concat(shuffle(others));
+    }
+    pool = Array.from(new Set(pool)).filter(a=>a!==card.answer);
+    const distractors = shuffle(pool).slice(0,3);
+    while(distractors.length<3) distractors.push("(keine weitere Option)");
+    return shuffle([card.answer, ...distractors]);
+  }
+
+  function applyTheme(){ document.body.className = "theme-" + state.settings.theme; }
+
+  const app = document.getElementById("app");
+
+  function render(){
+    if(!storageReady){ app.innerHTML = '<div class="empty-state px">LADE KARTEI...</div>'; return; }
+    applyTheme();
+    if(view.name==="home") return renderHome();
+    if(view.name==="deck") return renderDeck();
+    if(view.name==="import") return renderImport();
+    if(view.name==="study-select") return renderStudySelect();
+    if(view.name==="study") return renderStudy();
+    if(view.name==="settings") return renderSettings();
+    if(view.name==="search") return renderSearch();
+    if(view.name==="stats") return renderStats();
+  }
+
+  function renderXpBar(){
+    const info = levelInfo(state.globalXp);
+    const pct = Math.min(100, Math.round((info.xpInLevel/info.xpForNext)*100));
+    return `
+      <div class="xp-row">
+        <span class="rank-badge">LVL ${info.level} · ${rankTitle(info.level).toUpperCase()}</span>
+        <div class="xp-bar-outer"><div class="xp-bar-inner" style="width:${pct}%;"></div></div>
+        <span class="xp-label">${info.xpInLevel}/${info.xpForNext} XP</span>
+        ${state.streak.count>0 ? `<span class="streak-badge">🔥 ${state.streak.count}</span>` : ""}
+        <button class="icon-btn" id="hdr-search" title="Suche">🔍</button>
+        <button class="icon-btn" id="hdr-stats" title="Statistik">📊</button>
+        <button class="icon-btn" id="hdr-settings" title="Einstellungen">⚙</button>
+        <button class="icon-btn" id="hdr-hub" title="Zurück zum Hub">🏠</button>
+      </div>`;
+  }
+
+  function renderHeader(crumbTrail){
+    return `
+      <header class="top">
+        <div class="title-row">
+          <h1 class="px">📚 KARTEI QUEST</h1>
+          <nav class="crumbs">${crumbTrail}</nav>
+        </div>
+        ${renderXpBar()}
+      </header>`;
+  }
+
+  function bindHeaderIcons(){
+    const s = document.getElementById("hdr-search"); if(s) s.onclick = () => { view={name:"search", q:""}; render(); };
+    const st = document.getElementById("hdr-stats"); if(st) st.onclick = () => { view={name:"stats"}; render(); };
+    const se = document.getElementById("hdr-settings"); if(se) se.onclick = () => { view={name:"settings"}; render(); };
+    const h = document.getElementById("hdr-hub"); if(h) h.onclick = () => { window.location.href = "index.html"; };
+  }
+
+  function renderHome(){
+    let grid = "";
+    if(state.decks.length===0){
+      grid = `<div class="empty-state"><span class="px">DEINE KARTEI IST LEER</span>Leg dein erstes Fach an, um zu starten.</div>`;
+    } else {
+      grid = state.decks.map(d => {
+        const total = cardsForDeck(d.id).length;
+        const due = dueCardsForDeck(d.id).length;
+        const info = levelInfo(d.xp||0);
+        return `
+          <div class="deck-box" tabindex="0" role="button" data-deck="${d.id}" aria-label="Fach ${escapeHtml(d.name)} öffnen">
+            <span class="cart px">FACH</span>
+            <h3>${escapeHtml(d.name)}</h3>
+            <div class="meta">${total} Karte${total===1?"":"n"}</div>
+            <div class="deck-lvl">LVL ${info.level}</div>
+            <span class="due-badge ${due===0?"none":""}">${due>0 ? due+" fällig" : "nichts fällig"}</span>
+          </div>`;
+      }).join("");
+    }
+    app.innerHTML = `
+      ${renderHeader("ALLE FÄCHER")}
+      <div class="toolbar">
+        <button class="btn primary" id="btn-new-deck">+ NEUES FACH</button>
+        ${state.decks.length ? '<button class="btn" id="btn-import-any">IMPORTIEREN</button>' : ''}
+      </div>
+      <div class="deck-grid">${grid}<div class="new-deck-box px" id="btn-new-deck-2">+ FACH<br>ANLEGEN</div></div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("btn-new-deck").onclick = () => promptNewDeck();
+    document.getElementById("btn-new-deck-2").onclick = () => promptNewDeck();
+    const importBtn = document.getElementById("btn-import-any");
+    if(importBtn) importBtn.onclick = () => { view={name:"import", deckId: state.decks[0]?.id||null}; render(); };
+    app.querySelectorAll(".deck-box").forEach(el => {
+      el.addEventListener("click", () => { view={name:"deck", deckId: el.dataset.deck}; render(); });
+      el.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); view={name:"deck",deckId:el.dataset.deck}; render(); }});
+    });
+  }
+
+  async function promptNewDeck(){
+    const name = prompt('Name des neuen Fachs (z.B. "Strafrecht AT", "Verkehrsrecht"):');
+    if(!name||!name.trim()) return;
+    state.decks.push({ id: uid(), name: name.trim(), createdAt: Date.now(), xp:0 });
+    await saveData(); render();
+  }
+
+  function renderDeck(){
+    const deck = state.decks.find(d=>d.id===view.deckId);
+    if(!deck){ view={name:"home"}; return render(); }
+    const cards = cardsForDeck(deck.id);
+    const due = dueCardsForDeck(deck.id);
+    const rows = cards.length===0
+      ? `<div class="empty-state"><span class="px">NOCH KEINE KARTEN</span>Füge welche manuell hinzu oder importiere sie.</div>`
+      : cards.map(c => `
+        <div class="card-row">
+          <div><div class="q">${escapeHtml(c.question)}</div><div class="a">${escapeHtml(c.answer)}</div></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <div class="due">fällig: ${c.due?c.due:"sofort"}</div>
+            <button class="rowbtn edit" title="Karte bearbeiten" data-card="${c.id}" aria-label="Karte bearbeiten">✎</button>
+            <button class="rowbtn del" title="Karte löschen" data-card="${c.id}" aria-label="Karte löschen">✕</button>
+          </div>
+        </div>`).join("");
+
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / ${escapeHtml(deck.name)}`)}
+      <div class="toolbar">
+        <button class="btn good" id="btn-study" ${due.length===0?"disabled":""}>LERNEN (${due.length})</button>
+        <button class="btn" id="btn-pauken" ${cards.length===0?"disabled":""}>PAUKEN (${cards.length})</button>
+        <button class="btn" id="btn-add-card">+ KARTE</button>
+        <button class="btn" id="btn-import">IMPORT</button>
+        <button class="btn ghost" id="btn-del-deck">FACH LÖSCHEN</button>
+      </div>
+      <div class="panel" id="add-panel" style="display:none;">
+        <h2 id="panel-title">NEUE KARTE</h2>
+        <input type="text" id="f-id" style="display:none;">
+        <label for="f-q">Frage (Vorderseite)</label>
+        <textarea id="f-q" rows="2"></textarea>
+        <label for="f-a">Antwort (Rückseite)</label>
+        <textarea id="f-a" rows="2"></textarea>
+        <div class="toolbar" style="margin-top:14px;margin-bottom:0;">
+          <button class="btn primary" id="save-card">SPEICHERN</button>
+          <button class="btn ghost" id="cancel-card">ABBRECHEN</button>
+        </div>
+      </div>
+      <div>${rows}</div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+    document.getElementById("btn-study").onclick = () => { if(due.length){ view={name:"study-select", deckId:deck.id, pauken:false}; render(); } };
+    document.getElementById("btn-pauken").onclick = () => { if(cards.length){ view={name:"study-select", deckId:deck.id, pauken:true}; render(); } };
+    document.getElementById("btn-import").onclick = () => { view={name:"import", deckId:deck.id}; render(); };
+    function openPanel(title){ document.getElementById("panel-title").textContent=title; document.getElementById("add-panel").style.display="block"; }
+    document.getElementById("btn-add-card").onclick = () => {
+      document.getElementById("f-id").value=""; document.getElementById("f-q").value=""; document.getElementById("f-a").value="";
+      const p = document.getElementById("add-panel");
+      if(p.style.display==="block" && !document.getElementById("f-id").value){ p.style.display="none"; return; }
+      openPanel("NEUE KARTE");
+    };
+    document.getElementById("cancel-card").onclick = () => { document.getElementById("add-panel").style.display="none"; };
+    document.getElementById("save-card").onclick = async () => {
+      const id = document.getElementById("f-id").value;
+      const q = document.getElementById("f-q").value.trim();
+      const a = document.getElementById("f-a").value.trim();
+      if(!q||!a) return alert("Bitte Frage und Antwort ausfüllen.");
+      if(id){
+        const c = state.cards.find(x=>x.id===id);
+        if(c){ c.question=q; c.answer=a; }
+      } else {
+        state.cards.push({ id: uid(), deckId: deck.id, question:q, answer:a, ease:2.5, interval:0, reps:0, due: todayISO(), createdAt: Date.now() });
+      }
+      await saveData(); render();
+    };
+    document.getElementById("btn-del-deck").onclick = async () => {
+      if(!confirm(`Fach "${deck.name}" inkl. aller Karten wirklich löschen?`)) return;
+      state.decks = state.decks.filter(d=>d.id!==deck.id);
+      state.cards = state.cards.filter(c=>c.deckId!==deck.id);
+      await saveData(); view={name:"home"}; render();
+    };
+    app.querySelectorAll(".del").forEach(btn => { btn.onclick = async () => { state.cards = state.cards.filter(c=>c.id!==btn.dataset.card); await saveData(); render(); }; });
+    app.querySelectorAll(".edit").forEach(btn => {
+      btn.onclick = () => {
+        const c = state.cards.find(x=>x.id===btn.dataset.card); if(!c) return;
+        document.getElementById("f-id").value = c.id;
+        document.getElementById("f-q").value = c.question;
+        document.getElementById("f-a").value = c.answer;
+        openPanel("KARTE BEARBEITEN");
+        window.scrollTo({top:0, behavior:"smooth"});
+      };
+    });
+  }
+
+  function renderImport(){
+    const deck = state.decks.find(d=>d.id===view.deckId) || state.decks[0];
+    const deckOptions = state.decks.map(d=>`<option value="${d.id}" ${d.id===view.deckId?"selected":""}>${escapeHtml(d.name)}</option>`).join("");
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / IMPORT`)}
+      <div class="panel">
+        <h2>KARTEN IMPORTIEREN</h2>
+        <label for="imp-deck">In welches Fach?</label>
+        <select id="imp-deck">${deckOptions}<option value="__new__">+ Neues Fach anlegen</option></select>
+        <label for="imp-text">JSON einfügen</label>
+        <textarea id="imp-text" placeholder='[{"frage":"Was ist §113 StGB?","antwort":"Widerstand gegen Vollstreckungsbeamte"}]'></textarea>
+        <div class="hint">Format: Liste von Objekten mit <b>frage/question</b> und <b>antwort/answer</b>.</div>
+        <label for="imp-file">... oder .json-Datei hochladen</label>
+        <input type="file" id="imp-file" accept="application/json,.json">
+        <div class="toolbar" style="margin-top:16px;">
+          <button class="btn primary" id="btn-do-import">IMPORTIEREN</button>
+          <button class="btn ghost" id="btn-cancel-import">ABBRECHEN</button>
+        </div>
+        <div id="import-msg" class="hint" role="status"></div>
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+    document.getElementById("btn-cancel-import").onclick = () => { view = deck ? {name:"deck", deckId:deck.id} : {name:"home"}; render(); };
+    document.getElementById("imp-file").addEventListener("change", (e) => {
+      const file=e.target.files[0]; if(!file) return;
+      const reader=new FileReader(); reader.onload=()=>{ document.getElementById("imp-text").value=reader.result; }; reader.readAsText(file);
+    });
+    document.getElementById("btn-do-import").onclick = async () => {
+      const msg=document.getElementById("import-msg");
+      const raw=document.getElementById("imp-text").value.trim();
+      if(!raw){ msg.textContent="Bitte JSON einfügen oder Datei wählen."; return; }
+      let parsed; try{ parsed=JSON.parse(raw); }catch(e){ msg.textContent="Ungültiges JSON: "+e.message; return; }
+      if(!Array.isArray(parsed)){ msg.textContent="Erwartet wird eine Liste [ ... ] von Karten."; return; }
+      let deckIdSel = document.getElementById("imp-deck").value;
+      if(deckIdSel==="__new__"){
+        const name=prompt("Name des neuen Fachs:");
+        if(!name||!name.trim()){ msg.textContent="Import abgebrochen."; return; }
+        const nd={ id:uid(), name:name.trim(), createdAt:Date.now(), xp:0 }; state.decks.push(nd); deckIdSel=nd.id;
+      }
+      let added=0, skipped=0;
+      parsed.forEach(item => {
+        const q=item.frage||item.question||item.front||item.q;
+        const a=item.antwort||item.answer||item.back||item.a;
+        if(q&&a){ state.cards.push({ id:uid(), deckId:deckIdSel, question:String(q), answer:String(a), ease:2.5, interval:0, reps:0, due:todayISO(), createdAt:Date.now() }); added++; }
+        else skipped++;
+      });
+      await saveData();
+      msg.textContent = `${added} Karte(n) importiert${skipped?`, ${skipped} übersprungen`:""}.`;
+      setTimeout(() => { view={name:"deck", deckId:deckIdSel}; render(); }, 900);
+    };
+  }
+
+  function renderStudySelect(){
+    const deck = state.decks.find(d=>d.id===view.deckId);
+    if(!deck){ view={name:"home"}; return render(); }
+    const modes = [
+      {id:"flip", label:"KARTEIKARTEN", desc:"Klassisch umdrehen & bewerten"},
+      {id:"write", label:"SCHREIBEN", desc:"Antwort selbst eintippen"},
+      {id:"mc", label:"MULTIPLE CHOICE", desc:"Richtige Antwort auswählen"},
+      {id:"blitz", label:"BLITZ", desc:"Countdown pro Karte, Bonus-XP"},
+      {id:"boss", label:"BOSS-BATTLE", desc:"Leben vs. Boss-Leiste"}
+    ];
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / <button id="crumb-deck">${escapeHtml(deck.name)}</button> / Modus wählen`)}
+      <div class="panel">
+        <h2>${view.pauken?"PAUKEN-MODUS":"LERNEN"} — MODUS WÄHLEN</h2>
+        ${view.pauken?'<div class="hint">Im Pauken-Modus gibt es keine XP und der Lernfortschritt (Karteikasten) wird nicht verändert — reine Übung.</div>':''}
+        <div class="deck-grid" style="margin-top:14px;">
+          ${modes.map(m=>`<div class="deck-box" data-mode="${m.id}" tabindex="0" role="button"><h3>${m.label}</h3><div class="meta">${m.desc}</div></div>`).join("")}
+        </div>
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+    document.getElementById("crumb-deck").onclick = () => { view={name:"deck", deckId:deck.id}; render(); };
+    app.querySelectorAll(".deck-box[data-mode]").forEach(el => {
+      const start = () => {
+        const mode = el.dataset.mode;
+        const queue = buildQueue(deck.id, view.pauken);
+        if(queue.length===0) return;
+        view = { name:"study", deckId:deck.id, pauken:view.pauken, mode, queue, pos:0, showAnswer:false, sessionDone:0,
+                 lives:3, bossHp: queue.length*10, bossMaxHp: queue.length*10, timeLeft:12, timerId:null, writeChecked:false, mcAnswered:false };
+        render();
+      };
+      el.addEventListener("click", start);
+      el.addEventListener("keydown", e => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); start(); }});
+    });
+  }
+
+  function clearStudyTimer(){ if(view.timerId){ clearInterval(view.timerId); view.timerId=null; } }
+
+  async function finishCardCommon(grade){
+    const deck = state.decks.find(d=>d.id===view.deckId);
+    const cardId = view.queue[view.pos];
+    const card = state.cards.find(c=>c.id===cardId);
+    if(!card) return;
+    recordReview(grade);
+    if(!view.pauken){
+      scheduleCard(card, grade);
+      await awardXp(card, deck, view.mode==="blitz" && grade!=="again" ? XP_BLITZ_BONUS : 0);
+    }
+    if(view.mode==="boss"){
+      if(grade==="again") view.lives -= 1;
+      else if(grade==="hard") view.bossHp -= 5;
+      else if(grade==="good") view.bossHp -= 10;
+      else if(grade==="easy") view.bossHp -= 15;
+    }
+    checkAchievements();
+    await saveData();
+  }
+
+  function renderStudy(){
+    const deck = state.decks.find(d=>d.id===view.deckId);
+    if(!deck){ view={name:"home"}; return render(); }
+    clearStudyTimer();
+
+    if(view.mode==="boss" && view.lives<=0){
+      app.innerHTML = `${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / ${escapeHtml(deck.name)}`)}
+        <div class="done-panel"><span class="px">DER BOSS HAT DICH BESIEGT!</span><p>Kein Leben mehr übrig — versuch's nochmal.</p><button class="btn primary" id="btn-back">ZURÜCK ZUM FACH</button></div>`;
+      bindHeaderIcons(); document.getElementById("crumb-home").onclick=()=>{view={name:"home"};render();};
+      document.getElementById("btn-back").onclick=()=>{view={name:"deck",deckId:deck.id};render();}; return;
+    }
+    if(view.mode==="boss" && view.bossHp<=0){
+      app.innerHTML = `${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / ${escapeHtml(deck.name)}`)}
+        <div class="done-panel"><span class="px">BOSS BESIEGT! 🏆</span><p>${view.sessionDone} Karte(n) im Kampf gemeistert.</p><button class="btn primary" id="btn-back">ZURÜCK ZUM FACH</button></div>`;
+      bindHeaderIcons(); document.getElementById("crumb-home").onclick=()=>{view={name:"home"};render();};
+      document.getElementById("btn-back").onclick=()=>{view={name:"deck",deckId:deck.id};render();}; return;
+    }
+    if(view.pos >= view.queue.length){
+      app.innerHTML = `${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / ${escapeHtml(deck.name)}`)}
+        <div class="done-panel"><span class="px">STAPEL ERLEDIGT!</span><p>${view.sessionDone} Karte(n) wiederholt.</p><button class="btn primary" id="btn-back">ZURÜCK ZUM FACH</button></div>`;
+      bindHeaderIcons(); document.getElementById("crumb-home").onclick=()=>{view={name:"home"};render();};
+      document.getElementById("btn-back").onclick=()=>{view={name:"deck",deckId:deck.id};render();}; return;
+    }
+
+    const cardId = view.queue[view.pos];
+    const card = state.cards.find(c=>c.id===cardId);
+    if(!card){ view.pos++; return renderStudy(); }
+
+    const hud = view.mode==="boss" ? `<div class="battle-hud"><span>${"❤".repeat(Math.max(0,view.lives))}${"🖤".repeat(Math.max(0,3-view.lives))}</span><span>BOSS: ${Math.max(0,view.bossHp)}/${view.bossMaxHp}</span></div>` : "";
+    const timerBar = view.mode==="blitz" ? `<div class="timer-outer"><div class="timer-inner" id="timer-inner" style="width:100%;"></div></div>` : "";
+
+    let bodyHtml = "";
+    if(view.mode==="mc"){
+      if(!view._mcOptions) view._mcOptions = generateMcOptions(card);
+      bodyHtml = `
+        <div class="card-stage"><div class="index-card"><div class="face front" style="position:relative;">
+          <div class="label">FRAGE</div><div class="content">${escapeHtml(card.question)}</div><div class="hint-tap">&nbsp;</div>
+        </div></div></div>
+        <div class="mc-options">${view._mcOptions.map((opt,i)=>`<button class="mc-opt" data-opt="${i}">${escapeHtml(opt)}</button>`).join("")}</div>
+      `;
+    } else if(view.mode==="write"){
+      bodyHtml = `
+        <div class="card-stage"><div class="index-card"><div class="face front" style="position:relative;">
+          <div class="label">FRAGE</div><div class="content">${escapeHtml(card.question)}</div><div class="hint-tap">&nbsp;</div>
+        </div></div></div>
+        <div class="write-input">
+          <label for="write-ans">Deine Antwort</label>
+          <textarea id="write-ans" rows="2" ${view.writeChecked?"disabled":""}></textarea>
+        </div>
+        ${!view.writeChecked ? `<div class="toolbar"><button class="btn primary" id="write-check">PRÜFEN</button></div>` : `
+          <div class="write-result ${view._writeCorrect?'correct':'wrong'}">${view._writeCorrect?"RICHTIG!":"Richtige Antwort: "+escapeHtml(card.answer)}</div>
+          <div class="grade-row">
+            <button class="grade-btn again" data-grade="again">NOCHMAL<span class="k">&lt;1 Tag</span></button>
+            <button class="grade-btn hard" data-grade="hard">SCHWER<span class="k">bald wieder</span></button>
+            <button class="grade-btn good" data-grade="good">GUT<span class="k">normal</span></button>
+            <button class="grade-btn easy" data-grade="easy">LEICHT<span class="k">länger warten</span></button>
+          </div>`}
+      `;
+    } else {
+      bodyHtml = `
+        <div class="card-stage">
+          <div class="index-card ${view.showAnswer?'flipped':''}" id="flip-card" role="button" tabindex="0" aria-label="Karte umdrehen">
+            <div class="face front"><div class="label">FRAGE</div><div class="content">${escapeHtml(card.question)}</div><div class="hint-tap">[ TIPPEN ZUM UMDREHEN ]</div></div>
+            <div class="face back"><div class="label">ANTWORT</div><div class="content">${escapeHtml(card.answer)}</div><div class="hint-tap">&nbsp;</div></div>
+          </div>
+        </div>
+        ${view.showAnswer ? `
+        <div class="grade-row">
+          <button class="grade-btn again" data-grade="again">NOCHMAL<span class="k">&lt;1 Tag</span></button>
+          <button class="grade-btn hard" data-grade="hard">SCHWER<span class="k">bald wieder</span></button>
+          <button class="grade-btn good" data-grade="good">GUT<span class="k">normal</span></button>
+          <button class="grade-btn easy" data-grade="easy">LEICHT<span class="k">länger warten</span></button>
+        </div>` : `<div class="hint" style="margin-top:16px;">Erst umdrehen, dann bewerten.</div>`}
+      `;
+    }
+
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / <button id="crumb-deck">${escapeHtml(deck.name)}</button> / LERNEN`)}
+      <div class="study-wrap">
+        <div class="progress">KARTE ${view.pos+1} / ${view.queue.length}${view.pauken?" (Pauken)":""}</div>
+        ${hud}${timerBar}
+        ${bodyHtml}
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { clearStudyTimer(); view={name:"home"}; render(); };
+    document.getElementById("crumb-deck").onclick = () => { clearStudyTimer(); view={name:"deck", deckId:deck.id}; render(); };
+
+    async function advance(grade){
+      await finishCardCommon(grade);
+      view.pos++; view.showAnswer=false; view.sessionDone++;
+      view.writeChecked=false; view._writeCorrect=false; view._mcOptions=null; view.mcAnswered=false;
+      view.timeLeft=12;
+      render();
+    }
+
+    if(view.mode==="flip" || view.mode==="boss"){
+      const flipEl = document.getElementById("flip-card");
+      flipEl.onclick = () => { view.showAnswer=!view.showAnswer; sndFlip(); render(); };
+      flipEl.onkeydown = (e) => { if(e.key==="Enter"||e.key===" "){ e.preventDefault(); view.showAnswer=!view.showAnswer; sndFlip(); render(); } };
+      app.querySelectorAll(".grade-btn").forEach(btn => {
+        btn.onclick = async (e) => { e.stopPropagation(); const g=btn.dataset.grade; if(g==="again") sndAgain(); else sndGood(); await advance(g); };
+      });
+    } else if(view.mode==="mc"){
+      app.querySelectorAll(".mc-opt").forEach(btn => {
+        btn.onclick = async () => {
+          if(view.mcAnswered) return; view.mcAnswered = true;
+          const chosen = view._mcOptions[Number(btn.dataset.opt)];
+          const correct = chosen === card.answer;
+          app.querySelectorAll(".mc-opt").forEach(b => { b.disabled=true; if(b.textContent===card.answer) b.classList.add("correct"); });
+          if(!correct) btn.classList.add("wrong");
+          if(correct) sndGood(); else sndAgain();
+          setTimeout(() => advance(correct?"good":"again"), 900);
+        };
+      });
+    } else if(view.mode==="write"){
+      if(!view.writeChecked){
+        document.getElementById("write-check").onclick = () => {
+          const val = document.getElementById("write-ans").value;
+          view._writeCorrect = normalizeAnswer(val) === normalizeAnswer(card.answer) && val.trim().length>0;
+          view.writeChecked = true;
+          if(view._writeCorrect) sndGood(); else sndAgain();
+          render();
+        };
+      } else {
+        app.querySelectorAll(".grade-btn").forEach(btn => { btn.onclick = async () => { await advance(btn.dataset.grade); }; });
+      }
+    }
+
+    if(view.mode==="blitz" && !view.showAnswer){
+      const bar = document.getElementById("timer-inner");
+      view.timerId = setInterval(() => {
+        view.timeLeft -= 1;
+        if(bar) bar.style.width = Math.max(0,(view.timeLeft/12)*100) + "%";
+        if(view.timeLeft <= 3 && view.timeLeft>0) sndTick();
+        if(view.timeLeft <= 0){
+          clearStudyTimer();
+          advance("again");
+        }
+      }, 1000);
+    }
+
+    if(state.settings.keyboardEnabled && (view.mode==="flip" || view.mode==="boss" || view.mode==="blitz")){
+      document.onkeydown = (e) => {
+        const kb = state.settings.keybinds;
+        if(e.key===kb.flip && !view.showAnswer){ e.preventDefault(); view.showAnswer=true; sndFlip(); render(); return; }
+        if(view.showAnswer){
+          if(e.key===kb.again){ finishAndAdvanceKey("again"); }
+          else if(e.key===kb.hard){ finishAndAdvanceKey("hard"); }
+          else if(e.key===kb.good){ finishAndAdvanceKey("good"); }
+          else if(e.key===kb.easy){ finishAndAdvanceKey("easy"); }
+        }
+      };
+      function finishAndAdvanceKey(g){ if(g==="again") sndAgain(); else sndGood(); advance(g); document.onkeydown=null; }
+    } else {
+      document.onkeydown = null;
+    }
+  }
+
+  function renderSearch(){
+    const q = (view.q||"").toLowerCase();
+    const hits = q.length<1 ? [] : state.cards.filter(c => c.question.toLowerCase().includes(q) || c.answer.toLowerCase().includes(q));
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / SUCHE`)}
+      <div class="panel">
+        <h2>KARTEN DURCHSUCHEN</h2>
+        <input type="text" id="search-input" placeholder="Suchbegriff..." value="${escapeHtml(view.q||"")}">
+        <div style="margin-top:16px;">
+          ${q.length<1 ? '<div class="hint">Tipp einfach los.</div>' : hits.length===0 ? '<div class="hint">Keine Treffer.</div>' :
+            hits.map(c => { const d=state.decks.find(x=>x.id===c.deckId); return `
+              <div class="search-hit" data-deck="${c.deckId}"><div class="deckname">${escapeHtml(d?d.name:"?")}</div><div class="q">${escapeHtml(c.question)}</div><div class="a" style="color:var(--blue-light);">${escapeHtml(c.answer)}</div></div>
+            `; }).join("")}
+        </div>
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+    const input = document.getElementById("search-input");
+    input.oninput = () => { view.q = input.value; render(); document.getElementById("search-input").focus(); document.getElementById("search-input").selectionStart = document.getElementById("search-input").value.length; };
+    input.focus();
+    app.querySelectorAll(".search-hit").forEach(el => { el.onclick = () => { view={name:"deck", deckId: el.dataset.deck}; render(); }; });
+  }
+
+  function renderStats(){
+    const info = levelInfo(state.globalXp);
+    const gc = state.stats.gradeCounts;
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / STATISTIK`)}
+      <div class="panel">
+        <h2>DEIN FORTSCHRITT</h2>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num">${state.stats.totalReviewed}</div><div class="lbl">Karten gelernt</div></div>
+          <div class="stat-box"><div class="num">${info.level}</div><div class="lbl">Level (${rankTitle(info.level)})</div></div>
+          <div class="stat-box"><div class="num">${state.streak.count}</div><div class="lbl">Tage-Serie</div></div>
+          <div class="stat-box"><div class="num">${gc.good+gc.easy}</div><div class="lbl">Richtig (Gut/Leicht)</div></div>
+          <div class="stat-box"><div class="num">${gc.again}</div><div class="lbl">Nochmal</div></div>
+          <div class="stat-box"><div class="num">${state.decks.length}</div><div class="lbl">Fächer</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>ABZEICHEN</h2>
+        <div class="ach-list">
+          ${ACHIEVEMENTS.map(a => `<div class="ach-item ${state.achievements.includes(a.id)?'unlocked':''}"><div class="name">${state.achievements.includes(a.id)?'🏅':'🔒'} ${escapeHtml(a.name)}</div></div>`).join("")}
+        </div>
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+  }
+
+  function renderSettings(){
+    const themes = [
+      {id:"nes", label:"NES / 8-BIT"}, {id:"gameboy", label:"GAME BOY"}, {id:"dungeon", label:"DUNGEON"},
+      {id:"terminal", label:"TERMINAL"}, {id:"modern", label:"MODERN"}, {id:"cozy", label:"COZY FOREST"}
+    ];
+    const kb = state.settings.keybinds;
+    app.innerHTML = `
+      ${renderHeader(`<button id="crumb-home">ALLE FÄCHER</button> / EINSTELLUNGEN`)}
+      <div class="panel">
+        <h2>DESIGN</h2>
+        <div class="theme-swatches">
+          ${themes.map(t => `<button class="theme-swatch ${state.settings.theme===t.id?'active':''}" data-theme="${t.id}">${t.label}</button>`).join("")}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>SOUND</h2>
+        <div class="setting-row"><span>Effekt-Sounds an (Umdrehen, Richtig/Falsch)</span><input type="checkbox" id="opt-sound" ${state.settings.soundOn?"checked":""}></div>
+        <div class="setting-row"><span>Effekt-Lautstärke</span><input type="range" id="opt-volume" min="0" max="1" step="0.05" value="${state.settings.volume}" style="width:160px;"></div>
+        <div class="setting-row"><span>Hintergrundmusik an</span><input type="checkbox" id="opt-music" ${state.settings.musicOn?"checked":""}></div>
+        <div class="setting-row"><span>Musik-Lautstärke</span><input type="range" id="opt-music-volume" min="0" max="0.4" step="0.02" value="${state.settings.musicVolume}" style="width:160px;"></div>
+        <div class="hint">Die Musik passt sich dem gewählten Theme an — z.B. Chiptune-Loop bei NES/Game Boy oder Ambient-Atmosphäre bei Dungeon/Cozy Forest.</div>
+      </div>
+      <div class="panel">
+        <h2>STEUERUNG</h2>
+        <div class="setting-row"><span>Tastatursteuerung beim Lernen</span><input type="checkbox" id="opt-kb" ${state.settings.keyboardEnabled?"checked":""}></div>
+        <div class="setting-row"><span>Umdrehen</span><button class="keybind-btn" data-bind="flip">${kb.flip===" "?"LEERTASTE":kb.flip.toUpperCase()}</button></div>
+        <div class="setting-row"><span>Nochmal</span><button class="keybind-btn" data-bind="again">${kb.again.toUpperCase()}</button></div>
+        <div class="setting-row"><span>Schwer</span><button class="keybind-btn" data-bind="hard">${kb.hard.toUpperCase()}</button></div>
+        <div class="setting-row"><span>Gut</span><button class="keybind-btn" data-bind="good">${kb.good.toUpperCase()}</button></div>
+        <div class="setting-row"><span>Leicht</span><button class="keybind-btn" data-bind="easy">${kb.easy.toUpperCase()}</button></div>
+        <div class="hint">Klick auf eine Taste, dann die gewünschte neue Taste drücken.</div>
+      </div>
+      <div class="panel">
+        <h2>KARTENREIHENFOLGE</h2>
+        <div class="setting-row"><span>Reihenfolge beim Lernen</span>
+          <select id="opt-order" style="width:auto;">
+            <option value="random" ${state.settings.cardOrder==="random"?"selected":""}>Zufällig</option>
+            <option value="sequential" ${state.settings.cardOrder==="sequential"?"selected":""}>Der Reihe nach</option>
+          </select>
+        </div>
+      </div>
+      <div class="panel">
+        <h2>BACKUP</h2>
+        <div class="toolbar">
+          <button class="btn primary" id="btn-export">EXPORTIEREN (.json)</button>
+          <button class="btn" id="btn-import-backup">WIEDERHERSTELLEN</button>
+        </div>
+        <input type="file" id="backup-file" accept="application/json,.json" style="display:none;">
+        <div class="hint">Export sichert deine gesamte Kartei (alle Fächer, Karten, Fortschritt) als Datei — z.B. für einen Browser- oder Rechnerwechsel.</div>
+      </div>
+    `;
+    bindHeaderIcons();
+    document.getElementById("crumb-home").onclick = () => { view={name:"home"}; render(); };
+    themes.forEach(() => {});
+    app.querySelectorAll(".theme-swatch").forEach(btn => {
+      btn.onclick = async () => { state.settings.theme = btn.dataset.theme; await saveData(); switchThemeMusic(); render(); };
+    });
+    document.getElementById("opt-sound").onchange = async (e) => { state.settings.soundOn = e.target.checked; await saveData(); };
+    document.getElementById("opt-volume").oninput = async (e) => { state.settings.volume = Number(e.target.value); await saveData(); };
+    document.getElementById("opt-music").onchange = async (e) => { state.settings.musicOn = e.target.checked; await saveData(); if(!musicStarted) ensureMusicStarted(); updateMusicGain(); };
+    document.getElementById("opt-music-volume").oninput = async (e) => { state.settings.musicVolume = Number(e.target.value); await saveData(); updateMusicGain(); };
+    document.getElementById("opt-kb").onchange = async (e) => { state.settings.keyboardEnabled = e.target.checked; await saveData(); };
+    document.getElementById("opt-order").onchange = async (e) => { state.settings.cardOrder = e.target.value; await saveData(); };
+    app.querySelectorAll(".keybind-btn").forEach(btn => {
+      btn.onclick = () => {
+        app.querySelectorAll(".keybind-btn").forEach(b=>b.classList.remove("listening"));
+        btn.classList.add("listening");
+        listeningForKey = btn.dataset.bind;
+        const handler = async (e) => {
+          e.preventDefault();
+          state.settings.keybinds[listeningForKey] = e.key===" " ? " " : e.key;
+          listeningForKey = null;
+          document.removeEventListener("keydown", handler, true);
+          await saveData(); render();
+        };
+        document.addEventListener("keydown", handler, true);
+      };
+    });
+    document.getElementById("btn-export").onclick = () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const stamp = todayISO();
+      a.href = url; a.download = `kartei-backup-${stamp}.json`;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+    document.getElementById("btn-import-backup").onclick = () => document.getElementById("backup-file").click();
+    document.getElementById("backup-file").onchange = (e) => {
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try{
+          const parsed = JSON.parse(reader.result);
+          if(!confirm("Backup einspielen? Das ersetzt deine aktuelle Kartei komplett.")) return;
+          state.decks = Array.isArray(parsed.decks) ? parsed.decks : [];
+          state.cards = Array.isArray(parsed.cards) ? parsed.cards : [];
+          state.globalXp = typeof parsed.globalXp==="number" ? parsed.globalXp : 0;
+          if(parsed.settings) state.settings = Object.assign({}, state.settings, parsed.settings);
+          if(parsed.streak) state.streak = parsed.streak;
+          if(parsed.stats) state.stats = parsed.stats;
+          if(Array.isArray(parsed.achievements)) state.achievements = parsed.achievements;
+          await saveData();
+          if(musicStarted) switchThemeMusic();
+          view = {name:"home"}; render();
+        }catch(err){ alert("Backup-Datei ungültig: " + err.message); }
+      };
+      reader.readAsText(file);
+    };
+  }
+
+  function seedTestDeckIfEmpty(){
+    if(state.decks.length>0) return false;
+    const deckId = uid();
+    state.decks.push({ id:deckId, name:"Testfach", createdAt:Date.now(), xp:0 });
+    const testCards = [
+      { q:"Wie viele Bundesländer hat Deutschland?", a:"16" },
+      { q:"Was ist die Hauptstadt von Hessen?", a:"Wiesbaden" },
+      { q:"Wofür steht die Abkürzung StPO?", a:"Strafprozessordnung" },
+      { q:"Was ist das Gegenteil von 'fahrlässig'?", a:"Vorsätzlich" },
+      { q:"Wie viele Sekunden hat eine Minute?", a:"60" }
+    ];
+    testCards.forEach(tc => { state.cards.push({ id:uid(), deckId, question:tc.q, answer:tc.a, ease:2.5, interval:0, reps:0, due:todayISO(), createdAt:Date.now() }); });
+    return true;
+  }
+
+  (async function init(){
+    await loadData();
+    const seeded = seedTestDeckIfEmpty();
+    if(seeded) await saveData();
+    render();
+  })();
+})();
+</script>
+</body>
+</html>
