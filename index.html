@@ -528,19 +528,32 @@
     </div>
 
     <script>
-        let allData = [
-          {
-            "date": "2026-07-25",
-            "training": false,
-            "trainingMinutes": 0,
-            "recht": true,
-            "rechtMinutes": 30,
-            "energy": 4,
-            "sleep": 9
-          }
-        ];
-
+        let allData = [];
         let charts = {};
+
+        // LOAD DATA FROM data.json
+        async function loadData() {
+            try {
+                const response = await fetch('data.json?cache=' + new Date().getTime());
+                allData = await response.json();
+                updateDashboard();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Fallback data if loading fails
+                allData = [
+                  {
+                    "date": "2026-07-25",
+                    "training": false,
+                    "trainingMinutes": 0,
+                    "recht": true,
+                    "rechtMinutes": 30,
+                    "energy": 4,
+                    "sleep": 9
+                  }
+                ];
+                updateDashboard();
+            }
+        }
 
         function initCharts() {
             const labels = allData.map((_, i) => `Tag ${i + 1}`);
@@ -682,8 +695,9 @@
         }
 
         updateTime();
-        updateDashboard();
+        loadData(); // LOAD data.json on page load
         setInterval(updateTime, 1000);
+        setInterval(loadData, 5000); // Refresh data every 5 seconds
     </script>
 
 </body>
