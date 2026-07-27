@@ -20,6 +20,46 @@
             min-height: 100vh;
         }
 
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 32px;
+            background: rgba(20, 20, 40, 0.95);
+            border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+            margin-bottom: 32px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #00ffc8;
+            letter-spacing: 1px;
+        }
+
+        .navbar-button {
+            background: rgba(0, 255, 200, 0.1);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            color: #00ffc8;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-button:hover {
+            background: rgba(0, 255, 200, 0.2);
+            border-color: rgba(0, 255, 200, 0.6);
+        }
+
         .container {
             width: 100%;
             min-height: 100vh;
@@ -243,6 +283,12 @@
     </style>
 </head>
 <body>
+
+    <!-- NAVBAR -->
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:16px 32px; background:rgba(20,20,40,0.95); border-bottom:1px solid rgba(0,255,200,0.2); margin-bottom:32px; position:sticky; top:0; z-index:100;">
+        <div style="font-size:18px; font-weight:700; color:#00ffc8; letter-spacing:1px;">📊 JARVIS Dashboard</div>
+        <button style="background:rgba(0,255,200,0.1); border:1px solid rgba(0,255,200,0.3); color:#00ffc8; padding:10px 16px; border-radius:6px; font-weight:600; font-size:12px; text-transform:uppercase; letter-spacing:1px; cursor:pointer; transition:all 0.3s ease;" onmouseover="this.style.background='rgba(0,255,200,0.2)'; this.style.borderColor='rgba(0,255,200,0.6)';" onmouseout="this.style.background='rgba(0,255,200,0.1)'; this.style.borderColor='rgba(0,255,200,0.3)';" onclick="window.location.href='index.html';">← Zurück zum HUB</button>
+    </div>
 
     <div class="container">
         <!-- HEADER -->
