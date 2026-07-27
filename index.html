@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JARVIS COMMAND CENTER</title>
+    <title>JARVIS Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
     <style>
         * {
@@ -13,252 +13,201 @@
         }
 
         body {
-            background: #0a0400;
-            color: #ffaa00;
-            font-family: 'Arial', sans-serif;
-            font-weight: bold;
-            overflow: hidden;
-            line-height: 1.3;
-            letter-spacing: 0.5px;
+            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
         .container {
             width: 100vw;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 15px;
-            gap: 12px;
+            padding: 24px;
+            gap: 24px;
         }
 
-        /* HEADER - ORANGE TONE */
+        /* GLASSMORPHISM EFFECT */
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            transition: all 0.3s ease;
+        }
+
+        .glass:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(0, 255, 200, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 255, 200, 0.2);
+        }
+
+        /* HEADER */
         .header {
             display: flex;
-            gap: 15px;
-            height: 110px;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
         }
 
         .header-title {
-            background: linear-gradient(90deg, #ff7700 0%, #ff9900 100%);
-            padding: 15px 30px;
-            color: #000;
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 0 20px 20px 0;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            white-space: nowrap;
-            min-width: fit-content;
-        }
-
-        .header-content {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 10px;
-        }
-
-        .status-block {
-            background: linear-gradient(135deg, #ff6600 0%, #ff8800 100%);
-            border-radius: 0 20px 20px 0;
-            padding: 12px 18px;
-            color: #000;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .status-block:hover {
-            background: linear-gradient(135deg, #ff5500 0%, #ff7700 100%);
-            box-shadow:
-                8px 8px 25px rgba(0,0,0,0.9),
-                0 0 30px rgba(255, 85, 0, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .status-line {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 900;
-            letter-spacing: 1.5px;
-        }
-
-        .status-label {
-            color: #000;
-            font-weight: 900;
-        }
-
-        .status-value {
-            color: #000;
-            font-weight: 900;
-        }
-
-        /* MAIN CONTENT */
-        .content {
-            display: flex;
-            flex: 1;
-            gap: 12px;
-        }
-
-        .column {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .col-left {
-            width: 280px;
-        }
-
-        .col-center {
-            flex: 1;
-        }
-
-        .col-right {
-            width: 280px;
-        }
-
-        /* PANELS - VERSCHIEDENE TÖNE */
-
-        /* LEFT COLUMN - ROT TONE */
-        .panel-left {
-            background: linear-gradient(135deg, #dd4400 0%, #ee5500 100%);
-            border-radius: 0 25px 25px 0;
-            padding: 18px;
-            color: #000;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            overflow: hidden;
-            min-height: 110px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .panel-left:hover {
-            background: linear-gradient(135deg, #cc3300 0%, #dd4400 100%);
-            box-shadow:
-                8px 8px 25px rgba(0,0,0,0.9),
-                0 0 30px rgba(221, 68, 0, 0.6);
-            transform: translateY(-3px);
-        }
-
-        /* CENTER COLUMN - ORANGE-ROT TONE */
-        .panel-center {
-            background: linear-gradient(135deg, #ff6600 0%, #ff8800 100%);
-            border-radius: 0 25px 25px 0;
-            padding: 18px;
-            color: #000;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            overflow: hidden;
-            min-height: 110px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .panel-center:hover {
-            background: linear-gradient(135deg, #ff5500 0%, #ff7700 100%);
-            box-shadow:
-                8px 8px 25px rgba(0,0,0,0.9),
-                0 0 30px rgba(255, 102, 0, 0.6);
-            transform: translateY(-3px);
-        }
-
-        /* RIGHT COLUMN - DUNKELROT TONE */
-        .panel-right {
-            background: linear-gradient(135deg, #cc3300 0%, #dd5500 100%);
-            border-radius: 0 25px 25px 0;
-            padding: 18px;
-            color: #000;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            overflow: hidden;
-            min-height: 110px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .panel-right:hover {
-            background: linear-gradient(135deg, #bb2200 0%, #cc4400 100%);
-            box-shadow:
-                8px 8px 25px rgba(0,0,0,0.9),
-                0 0 30px rgba(204, 51, 0, 0.6);
-            transform: translateY(-3px);
-        }
-
-        .panel-title {
-            font-size: 16px;
-            font-weight: 900;
+            font-size: 36px;
+            font-weight: 700;
+            color: #00ffc8;
             letter-spacing: 2px;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            color: #000;
-            border-bottom: 3px solid rgba(0,0,0,0.4);
-            padding-bottom: 8px;
+            text-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
         }
 
-        .panel-content {
-            flex: 1;
-            font-size: 13px;
-            overflow-y: auto;
-            font-weight: bold;
-        }
-
-        /* DATA DISPLAY */
-        .data-line {
+        .header-info {
             display: flex;
-            justify-content: space-between;
-            margin: 6px 0;
-            color: #000;
-            font-weight: 900;
-            letter-spacing: 1px;
+            gap: 16px;
             font-size: 14px;
         }
 
-        .data-label {
-            color: #000;
-            font-weight: 900;
-        }
-
-        .data-value {
-            color: #000;
-            font-weight: 900;
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
             text-align: right;
         }
 
-        /* BIG DISPLAY */
+        .info-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            color: #00ffc8;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        /* CONTENT GRID */
+        .content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            flex: 1;
+        }
+
+        /* LARGE CARD (2 columns) */
+        .large {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 1200px) {
+            .large {
+                grid-column: span 1;
+            }
+        }
+
+        /* CARD TITLE */
+        .card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00ffc8;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(0, 255, 200, 0.2);
+        }
+
+        /* BIG VALUE */
         .big-value {
+            font-size: 56px;
+            font-weight: 700;
+            color: #00ffc8;
             text-align: center;
-            font-size: 52px;
-            font-weight: 900;
-            margin: 15px 0;
-            color: #000;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            letter-spacing: 2px;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+        }
+
+        /* DATA LINES */
+        .data-line {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            font-size: 14px;
+            color: #b0b0b0;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .data-label {
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            font-size: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .data-value {
+            color: #00ffc8;
+            font-weight: 700;
+            font-size: 14px;
         }
 
         /* CHART CONTAINER */
         .chart-container {
             position: relative;
-            height: 150px;
-            margin: 12px 0;
+            height: 200px;
+            margin: 20px 0;
         }
 
         .small-chart {
-            height: 120px;
+            height: 150px;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffc8 0%, #00d4aa 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* FOOTER */
+        .footer {
+            display: flex;
+            gap: 24px;
+            padding-top: 24px;
+            border-top: 1px solid rgba(0, 255, 200, 0.1);
+        }
+
+        .footer-item {
+            flex: 1;
+            text-align: center;
+        }
+
+        .footer-label {
+            color: #888;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .footer-value {
+            color: #00ffc8;
+            font-size: 18px;
+            font-weight: 700;
         }
 
         /* SCROLLBAR */
@@ -267,54 +216,18 @@
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
         }
 
         ::-webkit-scrollbar-thumb {
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 255, 200, 0.3);
             border-radius: 4px;
         }
 
-        /* FOOTER - ORANGE TONE */
-        .footer {
-            display: flex;
-            gap: 12px;
-            height: 80px;
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 200, 0.6);
         }
 
-        .footer-item {
-            flex: 1;
-            background: linear-gradient(135deg, #ff7700 0%, #ff9900 100%);
-            border-radius: 20px 0 0 20px;
-            padding: 15px 20px;
-            color: #000;
-            font-size: 13px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-around;
-            box-shadow: 8px 8px 25px rgba(0,0,0,0.9);
-            font-weight: 900;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .footer-item:hover {
-            background: linear-gradient(135deg, #ff6600 0%, #ff8800 100%);
-            box-shadow:
-                8px 8px 25px rgba(0,0,0,0.9),
-                0 0 30px rgba(255, 119, 0, 0.6);
-            transform: translateY(-2px);
-        }
-
-        .large {
-            flex: 2;
-        }
-
-        .small {
-            flex: 1;
-        }
-
-        /* CHART STYLE */
         canvas {
             max-height: 100%;
         }
@@ -324,205 +237,145 @@
 
     <div class="container">
         <!-- HEADER -->
-        <div class="header">
+        <div class="header glass">
             <div class="header-title">JARVIS</div>
-            <div class="header-content">
-                <div class="status-block">
-                    <div class="status-line">
-                        <span class="status-label">SYSTEM:</span>
-                        <span class="status-value">ONLINE</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">STATUS:</span>
-                        <span class="status-value">ACTIVE</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">MODE:</span>
-                        <span class="status-value">COMMAND</span>
-                    </div>
+            <div class="header-info">
+                <div class="info-item">
+                    <span class="info-label">Energy</span>
+                    <span class="info-value" id="headerEnergy">-</span>
                 </div>
-                <div class="status-block">
-                    <div class="status-line">
-                        <span class="status-label">ENERGY:</span>
-                        <span class="status-value" id="headerEnergy">-</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">ALERT:</span>
-                        <span class="status-value">NONE</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">TIME:</span>
-                        <span class="status-value" id="headerTime">--:--</span>
-                    </div>
+                <div class="info-item">
+                    <span class="info-label">Time</span>
+                    <span class="info-value" id="headerTime">--:--</span>
                 </div>
-                <div class="status-block">
-                    <div class="status-line">
-                        <span class="status-label">RECOVERY:</span>
-                        <span class="status-value">95%</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">READY:</span>
-                        <span class="status-value">YES</span>
-                    </div>
-                    <div class="status-line">
-                        <span class="status-label">WARNING:</span>
-                        <span class="status-value">OFF</span>
-                    </div>
+                <div class="info-item">
+                    <span class="info-label">Status</span>
+                    <span class="info-value">LIVE</span>
                 </div>
             </div>
         </div>
 
         <!-- MAIN CONTENT -->
         <div class="content">
-            <!-- LEFT COLUMN - ROT -->
-            <div class="column col-left">
-                <div class="panel-left large">
-                    <div class="panel-title">ENERGY LEVEL</div>
-                    <div class="panel-content">
-                        <div class="big-value" id="energyValue">7/10</div>
-                        <div class="data-line">
-                            <span class="data-label">CURRENT:</span>
-                            <span class="data-value" id="energyNow">4</span>
-                        </div>
-                        <div class="data-line">
-                            <span class="data-label">AVERAGE:</span>
-                            <span class="data-value" id="energyAvg">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-left small">
-                    <div class="panel-title">SLEEP</div>
-                    <div class="panel-content">
-                        <div class="data-line">
-                            <span class="data-label">HOURS:</span>
-                            <span class="data-value" id="sleepHours">9</span>
-                        </div>
-                        <div class="data-line">
-                            <span class="data-label">QUALITY:</span>
-                            <span class="data-value">GOOD</span>
-                        </div>
-                        <div class="data-line">
-                            <span class="data-label">AVERAGE:</span>
-                            <span class="data-value" id="sleepAvg">--</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="panel-left small">
-                    <div class="panel-title">SYSTEMS</div>
-                    <div class="panel-content">
-                        <div class="data-line">
-                            <span class="data-label">TRAINING:</span>
-                            <span class="data-value">READY</span>
-                        </div>
-                        <div class="data-line">
-                            <span class="data-label">LEARNING:</span>
-                            <span class="data-value">READY</span>
-                        </div>
-                        <div class="data-line">
-                            <span class="data-label">RECOVERY:</span>
-                            <span class="data-value">READY</span>
-                        </div>
-                    </div>
+            <!-- ENERGY -->
+            <div class="glass large">
+                <div class="card-title">Energy Trend</div>
+                <div class="chart-container">
+                    <canvas id="energyChart"></canvas>
                 </div>
             </div>
 
-            <!-- CENTER COLUMN - ORANGE-ROT -->
-            <div class="column col-center">
-                <div class="panel-center">
-                    <div class="panel-title">ENERGY TREND</div>
-                    <div class="panel-content">
-                        <div class="chart-container">
-                            <canvas id="energyChart"></canvas>
-                        </div>
-                    </div>
+            <!-- ENERGY CURRENT -->
+            <div class="glass">
+                <div class="card-title">Current Energy</div>
+                <div class="big-value" id="energyValue">7/10</div>
+                <div class="data-line">
+                    <span class="data-label">Average</span>
+                    <span class="data-value" id="energyAvg">--</span>
                 </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                    <div class="panel-center">
-                        <div class="panel-title">TRAINING</div>
-                        <div class="panel-content">
-                            <div class="chart-container small-chart">
-                                <canvas id="trainingChart"></canvas>
-                            </div>
-                            <div class="data-line">
-                                <span class="data-label">SESSIONS:</span>
-                                <span class="data-value" id="trainingSessions">0/5</span>
-                            </div>
-                            <div class="data-line">
-                                <span class="data-label">HOURS:</span>
-                                <span class="data-value" id="trainingHours">0</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="panel-center">
-                        <div class="panel-title">RECHT-CRASH</div>
-                        <div class="panel-content">
-                            <div class="chart-container small-chart">
-                                <canvas id="rechtChart"></canvas>
-                            </div>
-                            <div class="data-line">
-                                <span class="data-label">SESSIONS:</span>
-                                <span class="data-value" id="rechtSessions">1/4</span>
-                            </div>
-                            <div class="data-line">
-                                <span class="data-label">HOURS:</span>
-                                <span class="data-value" id="rechtHours">0.5</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="data-line">
+                    <span class="data-label">Status</span>
+                    <span class="data-value">Stable</span>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN - DUNKELROT -->
-            <div class="column col-right">
-                <div class="panel-right large">
-                    <div class="panel-title">RECOVERY</div>
-                    <div class="panel-content">
-                        <div class="big-value">95%</div>
-                        <div style="text-align: center; font-size: 16px; font-weight: 900; margin-top: 10px;">
-                            READY
-                        </div>
-                    </div>
+            <!-- SLEEP -->
+            <div class="glass">
+                <div class="card-title">Sleep</div>
+                <div class="data-line">
+                    <span class="data-label">Hours</span>
+                    <span class="data-value" id="sleepHours">9h</span>
                 </div>
-
-                <div class="panel-right small">
-                    <div class="panel-title">CONSISTENCY</div>
-                    <div class="panel-content">
-                        <div class="data-line">
-                            <span class="data-label">TRAINING:</span>
-                            <span class="data-value" id="consistency">0%</span>
-                        </div>
-                        <div style="background: rgba(0,0,0,0.3); height: 12px; margin: 10px 0; border-radius: 6px;">
-                            <div style="background: rgba(0,0,0,0.7); height: 100%; border-radius: 6px; width: 0%;" id="consistencyBar"></div>
-                        </div>
-                    </div>
+                <div class="data-line">
+                    <span class="data-label">Quality</span>
+                    <span class="data-value" id="sleepQuality">Good</span>
                 </div>
+                <div class="data-line">
+                    <span class="data-label">Average</span>
+                    <span class="data-value" id="sleepAvg">--</span>
+                </div>
+            </div>
 
-                <div class="panel-right small">
-                    <div class="panel-title">ANALYSIS</div>
-                    <div class="panel-content" id="analysis" style="font-size: 12px; font-weight: bold;">
-                        MONITORING...
-                    </div>
+            <!-- TRAINING -->
+            <div class="glass">
+                <div class="card-title">Training</div>
+                <div class="chart-container small-chart">
+                    <canvas id="trainingChart"></canvas>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Sessions</span>
+                    <span class="data-value" id="trainingSessions">0/5</span>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Hours</span>
+                    <span class="data-value" id="trainingHours">0h</span>
+                </div>
+            </div>
+
+            <!-- RECHT -->
+            <div class="glass">
+                <div class="card-title">Recht-Crash</div>
+                <div class="chart-container small-chart">
+                    <canvas id="rechtChart"></canvas>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Sessions</span>
+                    <span class="data-value" id="rechtSessions">0/4</span>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Hours</span>
+                    <span class="data-value" id="rechtHours">0h</span>
+                </div>
+            </div>
+
+            <!-- RECOVERY -->
+            <div class="glass">
+                <div class="card-title">Recovery</div>
+                <div class="big-value" id="recoveryValue">95%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="recoveryBar" style="width: 95%;"></div>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Status</span>
+                    <span class="data-value">Ready</span>
+                </div>
+            </div>
+
+            <!-- CONSISTENCY -->
+            <div class="glass">
+                <div class="card-title">Consistency</div>
+                <div class="big-value" id="consistency">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="consistencyBar" style="width: 0%;"></div>
+                </div>
+                <div class="data-line">
+                    <span class="data-label">Target</span>
+                    <span class="data-value">85%+</span>
+                </div>
+            </div>
+
+            <!-- ANALYSIS -->
+            <div class="glass large">
+                <div class="card-title">Analysis</div>
+                <div style="color: #b0b0b0; font-size: 14px; line-height: 1.6;" id="analysis">
+                    MONITORING...
                 </div>
             </div>
         </div>
 
         <!-- FOOTER -->
-        <div class="footer">
+        <div class="glass footer">
             <div class="footer-item">
-                <span style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">STATUS</span>
-                <span id="footerStatus">SYSTEM NOMINAL</span>
+                <div class="footer-label">Status</div>
+                <div class="footer-value" id="footerStatus">ONLINE</div>
             </div>
             <div class="footer-item">
-                <span style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">TIME</span>
-                <span id="footerTime">--:-- CET</span>
+                <div class="footer-label">Data</div>
+                <div class="footer-value" id="footerData">LIVE</div>
             </div>
             <div class="footer-item">
-                <span style="font-size: 14px; font-weight: 900; letter-spacing: 1px;">DATA</span>
-                <span id="footerData">LIVE ACTIVE</span>
+                <div class="footer-label">Update</div>
+                <div class="footer-value" id="footerUpdate">Ready</div>
             </div>
         </div>
     </div>
@@ -531,7 +384,7 @@
         let allData = [];
         let charts = {};
 
-        // LOAD DATA FROM data.json
+        // LOAD DATA FROM data.json (ONCE on page load)
         async function loadData() {
             try {
                 const response = await fetch('data.json?cache=' + new Date().getTime());
@@ -539,18 +392,7 @@
                 updateDashboard();
             } catch (error) {
                 console.error('Error loading data:', error);
-                // Fallback data if loading fails
-                allData = [
-                  {
-                    "date": "2026-07-25",
-                    "training": false,
-                    "trainingMinutes": 0,
-                    "recht": true,
-                    "rechtMinutes": 30,
-                    "energy": 4,
-                    "sleep": 9
-                  }
-                ];
+                allData = [];
                 updateDashboard();
             }
         }
@@ -569,14 +411,14 @@
                     datasets: [{
                         label: 'Energy Level',
                         data: energyData,
-                        borderColor: '#000',
-                        backgroundColor: 'rgba(0, 0, 0, 0.15)',
+                        borderColor: '#00ffc8',
+                        backgroundColor: 'rgba(0, 255, 200, 0.1)',
                         fill: true,
                         tension: 0.4,
-                        borderWidth: 3,
-                        pointBackgroundColor: '#000',
-                        pointRadius: 6,
-                        pointBorderColor: '#000',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#00ffc8',
+                        pointRadius: 5,
+                        pointBorderColor: '#00ffc8',
                         pointBorderWidth: 2
                     }]
                 },
@@ -584,17 +426,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { labels: { color: '#000', font: { size: 13, weight: 'bold' } } }
+                        legend: { labels: { color: '#888', font: { size: 13, weight: 'bold' } } }
                     },
                     scales: {
                         y: {
                             max: 10,
-                            ticks: { color: '#000', font: { size: 12, weight: 'bold' } },
-                            grid: { color: 'rgba(0, 0, 0, 0.2)' }
+                            ticks: { color: '#888', font: { size: 12, weight: 'bold' } },
+                            grid: { color: 'rgba(0, 255, 200, 0.1)' }
                         },
                         x: {
-                            ticks: { color: '#000', font: { size: 12, weight: 'bold' } },
-                            grid: { color: 'rgba(0, 0, 0, 0.2)' }
+                            ticks: { color: '#888', font: { size: 12, weight: 'bold' } },
+                            grid: { color: 'rgba(0, 255, 200, 0.05)' }
                         }
                     }
                 }
@@ -610,15 +452,15 @@
                     labels: ['Trained', 'Rest'],
                     datasets: [{
                         data: [trainingSessions, allData.length - trainingSessions],
-                        backgroundColor: ['rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.2)'],
-                        borderColor: '#000',
-                        borderWidth: 2
+                        backgroundColor: ['rgba(0, 255, 200, 0.8)', 'rgba(255, 255, 255, 0.1)'],
+                        borderColor: 'rgba(0, 255, 200, 0.3)',
+                        borderWidth: 1
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#000', font: { size: 11, weight: 'bold' } } } }
+                    plugins: { legend: { labels: { color: '#888', font: { size: 11, weight: 'bold' } } } }
                 }
             });
 
@@ -632,9 +474,9 @@
                     labels: ['Done', 'Pending'],
                     datasets: [{
                         data: [rechtSessions, allData.length - rechtSessions],
-                        backgroundColor: ['rgba(0, 0, 0, 0.7)', 'rgba(0, 0, 0, 0.2)'],
-                        borderColor: '#000',
-                        borderWidth: 2
+                        backgroundColor: ['rgba(0, 255, 200, 0.8)', 'rgba(255, 255, 255, 0.1)'],
+                        borderColor: 'rgba(0, 255, 200, 0.3)',
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -642,7 +484,12 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { x: { ticks: { color: '#000', font: { weight: 'bold' } }, grid: { color: 'rgba(0, 0, 0, 0.2)' } } }
+                    scales: {
+                        x: {
+                            ticks: { color: '#888', font: { weight: 'bold' } },
+                            grid: { color: 'rgba(0, 255, 200, 0.05)' }
+                        }
+                    }
                 }
             });
         }
@@ -654,19 +501,19 @@
 
             document.getElementById('headerEnergy').textContent = lastDay.energy + '/10';
             document.getElementById('energyValue').textContent = lastDay.energy + '/10';
-            document.getElementById('energyNow').textContent = lastDay.energy;
 
-            document.getElementById('sleepHours').textContent = lastDay.sleep;
+            document.getElementById('sleepHours').textContent = lastDay.sleep + 'h';
+            document.getElementById('sleepQuality').textContent = lastDay.sleepQuality === 'good' ? 'Good' : 'OK';
             const sleepValues = allData.filter(d => d.sleep).map(d => d.sleep);
             if (sleepValues.length > 0) {
                 const avgSleep = (sleepValues.reduce((a, b) => a + b) / sleepValues.length).toFixed(1);
-                document.getElementById('sleepAvg').textContent = avgSleep;
+                document.getElementById('sleepAvg').textContent = avgSleep + 'h';
             }
 
             const trainingSessions = allData.filter(d => d.training).length;
             const trainingHours = (allData.reduce((sum, d) => sum + (d.trainingMinutes || 0), 0) / 60).toFixed(1);
             document.getElementById('trainingSessions').textContent = `${trainingSessions}/${allData.length}`;
-            document.getElementById('trainingHours').textContent = trainingHours;
+            document.getElementById('trainingHours').textContent = trainingHours + 'h';
 
             const consistency = ((trainingSessions / allData.length) * 100).toFixed(0);
             document.getElementById('consistency').textContent = consistency + '%';
@@ -675,13 +522,13 @@
             const rechtSessions = allData.filter(d => d.recht).length;
             const rechtHours = (allData.reduce((sum, d) => sum + (d.rechtMinutes || 0), 0) / 60).toFixed(1);
             document.getElementById('rechtSessions').textContent = `${rechtSessions}/${allData.length}`;
-            document.getElementById('rechtHours').textContent = rechtHours;
+            document.getElementById('rechtHours').textContent = rechtHours + 'h';
 
             const avgEnergy = (allData.reduce((sum, d) => sum + (d.energy || 0), 0) / allData.length).toFixed(1);
-            let insight = 'MONITORING';
-            if (avgEnergy < 5) insight = 'ENERGY LOW - REST ADVISED';
-            else if (avgEnergy >= 7) insight = 'ENERGY OPTIMAL';
-            else insight = 'ENERGY STABLE';
+            let insight = 'Monitoring data. Keep consistent.';
+            if (avgEnergy < 5) insight = '⚠️ Energy low. Rest advised.';
+            else if (avgEnergy >= 7) insight = '✓ Energy optimal. Training ready.';
+            else insight = '✓ Energy stable. Continue plan.';
             document.getElementById('analysis').innerHTML = insight;
 
             initCharts();
@@ -691,13 +538,12 @@
             const now = new Date();
             const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('headerTime').textContent = time;
-            document.getElementById('footerTime').textContent = time + ' CET';
+            document.getElementById('footerUpdate').textContent = time;
         }
 
         updateTime();
-        loadData(); // LOAD data.json on page load
-        setInterval(updateTime, 1000);
-        setInterval(loadData, 5000); // Refresh data every 5 seconds
+        loadData(); // Load ONCE on page load
+        setInterval(updateTime, 1000); // Update time every second
     </script>
 
 </body>
