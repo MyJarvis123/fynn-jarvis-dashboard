@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JARVIS HUB</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+            color: #e0e0e0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 32px;
+            gap: 32px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            font-size: 48px;
+            font-weight: 700;
+            color: #00ffc8;
+            letter-spacing: 2px;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: #999;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* PAD GRID */
+        .pad-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            flex: 1;
+        }
+
+        /* PAD CARD */
+        .pad-card {
+            background: rgba(20, 20, 40, 0.8);
+            border: 1px solid rgba(0, 255, 200, 0.15);
+            border-radius: 12px;
+            padding: 32px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .pad-card:hover {
+            border-color: rgba(0, 255, 200, 0.4);
+            background: rgba(20, 20, 40, 1);
+            box-shadow: 0 8px 32px rgba(0, 255, 200, 0.1);
+            transform: translateY(-4px);
+        }
+
+        .pad-icon {
+            font-size: 48px;
+            text-align: center;
+        }
+
+        .pad-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #00ffc8;
+            text-align: center;
+        }
+
+        .pad-description {
+            font-size: 14px;
+            color: #999;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .pad-footer {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(0, 255, 200, 0.1);
+            display: flex;
+            justify-content: center;
+        }
+
+        .pad-button {
+            background: rgba(0, 255, 200, 0.1);
+            border: 1px solid rgba(0, 255, 200, 0.3);
+            color: #00ffc8;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .pad-card:hover .pad-button {
+            background: rgba(0, 255, 200, 0.2);
+            border-color: rgba(0, 255, 200, 0.6);
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid rgba(0, 255, 200, 0.1);
+            color: #666;
+            font-size: 12px;
+        }
+
+        .footer-time {
+            color: #00ffc8;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                gap: 24px;
+            }
+
+            .header-title {
+                font-size: 32px;
+            }
+
+            .pad-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <div class="header-title">JARVIS HUB</div>
+            <div class="header-subtitle">Dein Personal Command Center</div>
+        </div>
+
+        <!-- PAD GRID -->
+        <div class="pad-grid">
+            <!-- JARVIS DASHBOARD -->
+            <a href="index.html" class="pad-card">
+                <div class="pad-icon">📊</div>
+                <div class="pad-title">Dashboard</div>
+                <div class="pad-description">
+                    Dein Training, Energie & Recht-Fortschritt auf einen Blick. Recovery-Status, Konsistenz & Live-Metriken.
+                </div>
+                <div class="pad-footer">
+                    <button class="pad-button">Öffnen</button>
+                </div>
+            </a>
+
+            <!-- KARTEI QUEST -->
+            <a href="kartei.html" class="pad-card">
+                <div class="pad-icon">📚</div>
+                <div class="pad-title">Kartei Quest</div>
+                <div class="pad-description">
+                    Karteikarten-System mit Loki-Methode, XP & Achievements. Multiple Lernmodi & Theme-Customization.
+                </div>
+                <div class="pad-footer">
+                    <button class="pad-button">Öffnen</button>
+                </div>
+            </a>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="footer-time" id="current-time">--:-- CET</div>
+            <div>JARVIS System — Polizeistudium Bootcamp | Fynn 2026</div>
+        </div>
+    </div>
+
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('current-time').textContent = time + ' CET';
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+
+</body>
+</html>
