@@ -602,26 +602,41 @@
   // Firebase Sync
   let firebaseSync = null;
 
-  (async function init() {
-    await loadData();
+  async function initFirebase() {
+    try {
+      if (typeof FirebaseSync === "undefined") {
+        console.warn("FirebaseSync nicht verfügbar");
+        return false;
+      }
 
-    // Initialisiere Firebase
-    if (typeof FirebaseSync !== "undefined") {
       firebaseSync = new FirebaseSync("bookmarks");
       const fbReady = await firebaseSync.init();
 
       if (fbReady) {
+        console.log("✓ Firebase initialisiert für Bookmarks");
         const cloudData = await firebaseSync.syncFromCloud();
         if (cloudData && cloudData.bookmarks && cloudData.bookmarks.length > 0) {
           state = cloudData;
           console.log("✓ Bookmarks von Firebase geladen");
+          return true;
         } else if (state.bookmarks.length > 0) {
           await firebaseSync.syncToCloud(state);
           console.log("✓ Bookmarks zu Firebase hochgeladen");
+          return true;
         }
+      } else {
+        console.warn("Firebase nicht bereit für Bookmarks");
       }
+    } catch (e) {
+      console.error("Firebase Init Fehler:", e);
     }
+    return false;
+  }
 
+  (async function init() {
+    console.log("🔖 Bookmarks startet...");
+    await loadData();
+    await initFirebase();
     render();
   })();
 })();

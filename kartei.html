@@ -795,28 +795,46 @@
   // Firebase Sync
   let firebaseSync = null;
 
-  (async function init() {
-    // Initialisiere lokale Daten
-    await loadData();
+  async function initFirebase() {
+    try {
+      if (typeof FirebaseSync === "undefined") {
+        console.warn("FirebaseSync nicht verfügbar");
+        return false;
+      }
 
-    // Initialisiere Firebase
-    if (typeof FirebaseSync !== "undefined") {
       firebaseSync = new FirebaseSync("kartei");
       const fbReady = await firebaseSync.init();
 
       if (fbReady) {
+        console.log("✓ Firebase initialisiert für Kartei");
         // Versuche Daten von Firebase zu laden
         const cloudData = await firebaseSync.syncFromCloud();
         if (cloudData && cloudData.decks && cloudData.decks.length > 0) {
           state = cloudData;
           console.log("✓ Kartei von Firebase geladen");
+          return true;
         } else if (state.decks.length > 0) {
           // Speichere lokale Daten zu Firebase
           await firebaseSync.syncToCloud(state);
           console.log("✓ Kartei zu Firebase hochgeladen");
+          return true;
         }
+      } else {
+        console.warn("Firebase nicht bereit für Kartei");
       }
+    } catch (e) {
+      console.error("Firebase Init Fehler:", e);
     }
+    return false;
+  }
+
+  (async function init() {
+    console.log("📚 Kartei startet...");
+    // Initialisiere lokale Daten
+    await loadData();
+
+    // Initialisiere Firebase
+    await initFirebase();
 
     if (state.decks.length === 0) {
       const deckId = uid();
