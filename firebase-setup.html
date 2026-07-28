@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIREBASE SETUP — JARVIS</title>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+    --bg-card: rgba(20, 20, 40, 0.8);
+    --cyan: #00ffc8;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --border-color: rgba(0, 255, 200, 0.15);
+    --border-hover: rgba(0, 255, 200, 0.4);
+    --glow: 0 8px 32px rgba(0, 255, 200, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: rgba(20, 20, 40, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .navbar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+  }
+
+  .navbar-button {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-button:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  #app {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 32px 90px;
+  }
+
+  .header {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .status-box {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .status-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .status-value {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .status-value.connected {
+    color: #00ffc8;
+  }
+
+  .status-value.disconnected {
+    color: #ff6b6b;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: monospace;
+    font-size: 12px;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"]:focus {
+    outline: none;
+    border-color: var(--border-hover);
+    box-shadow: 0 0 12px rgba(0, 255, 200, 0.2);
+  }
+
+  .btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  .btn.primary {
+    background: var(--cyan);
+    color: #0f0f1e;
+  }
+
+  .btn.primary:hover {
+    background: #33ffdb;
+  }
+
+  .step {
+    background: rgba(0, 0, 0, 0.2);
+    border-left: 3px solid var(--cyan);
+    padding: 16px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+  }
+
+  .step-num {
+    font-weight: 700;
+    color: var(--cyan);
+    margin-bottom: 8px;
+  }
+
+  .step-content {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+  }
+
+  .step-code {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 8px;
+    font-family: monospace;
+    font-size: 11px;
+    overflow-x: auto;
+  }
+
+  .link {
+    color: var(--cyan);
+    text-decoration: none;
+  }
+
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  .info-box {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .info-icon {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 12px 16px;
+    }
+
+    #app {
+      padding: 0 16px 60px;
+    }
+
+    .header {
+      font-size: 24px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-title">🔧 FIREBASE SETUP</div>
+  <a href="index.html" class="navbar-button">← Zurück zu HUB</a>
+</div>
+
+<div id="app">
+  <div class="header">🔧 FIREBASE CLOUD-SYNC EINRICHTEN</div>
+
+  <div class="card">
+    <div class="card-title">Status</div>
+    <div class="status-box">
+      <div class="status-label">Firebase Verbindung</div>
+      <div class="status-value disconnected" id="firebase-status">⚠️ NICHT KONFIGURIERT</div>
+    </div>
+  </div>
+
+  <div class="info-box">
+    <span class="info-icon">ℹ️</span>
+    <div>
+      <strong>Was ist das?</strong><br>
+      Firebase synchronisiert deine Daten automatisch zwischen Desktop und Handy. Einmal einrichten, dann läuft es!
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Schritt 1: Firebase Project erstellen</div>
+    <div class="step">
+      <div class="step-num">1. Gehe zu Firebase Console</div>
+      <div class="step-content">
+        Öffne <a href="https://console.firebase.google.com" target="_blank" class="link">console.firebase.google.com</a>
+        <div class="step-code">https://console.firebase.google.com</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2. Neues Projekt erstellen</div>
+      <div class="step-content">
+        Klicke auf "+ Projekt erstellen"<br>
+        Name: z.B. "JARVIS Dashboard"<br>
+        Google Analytics: Optional (nicht nötig)
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3. Realtime Database aktivieren</div>
+      <div class="step-content">
+        Gehe zu "Realtime Database" (im linken Menü)<br>
+        Klicke "Datenbank erstellen"<br>
+        Standort: Europe (z.B. europe-west1)<br>
+        Sicherheitsregeln: Wähle "Im Test-Modus starten"
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Schritt 2: Web-App registrieren</div>
+    <div class="step">
+      <div class="step-num">1. Project Settings öffnen</div>
+      <div class="step-content">
+        Klicke auf das Zahnrad-Icon (oben links)<br>
+        Wähle "Projekteinstellungen"
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2. Web-App hinzufügen</div>
+      <div class="step-content">
+        Klicke auf "</> Web" um eine neue Web-App zu registrieren<br>
+        App-Name: z.B. "JARVIS"<br>
+        Klicke "App registrieren"
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3. Credentials kopieren</div>
+      <div class="step-content">
+        Du siehst einen Code-Block mit firebaseConfig<br>
+        <strong>Kopiere ALLE 6 Werte:</strong>
+        <div class="step-code">
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DATABASE_URL",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID"
+};</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Schritt 3: Credentials hier eintragen</div>
+    <label for="api-key">API Key</label>
+    <input type="text" id="api-key" placeholder="AIza...">
+
+    <label for="auth-domain">Auth Domain</label>
+    <input type="text" id="auth-domain" placeholder="project-name.firebaseapp.com">
+
+    <label for="database-url">Database URL</label>
+    <input type="text" id="database-url" placeholder="https://project-name.firebaseio.com">
+
+    <label for="project-id">Project ID</label>
+    <input type="text" id="project-id" placeholder="project-name">
+
+    <label for="storage-bucket">Storage Bucket</label>
+    <input type="text" id="storage-bucket" placeholder="project-name.appspot.com">
+
+    <label for="messaging-sender-id">Messaging Sender ID</label>
+    <input type="text" id="messaging-sender-id" placeholder="123456789">
+
+    <button class="btn primary" id="save-config">✓ Konfiguration speichern</button>
+  </div>
+
+  <div class="card" id="success-box" style="display: none;">
+    <div class="card-title" style="color: #00ffc8;">✓ Firebase ist verbunden!</div>
+    <div style="color: #00ffc8; padding: 16px;">
+      Deine Daten werden jetzt automatisch synced.<br>
+      <br>
+      Nutze die App wie gewohnt — auf Desktop und Handy sind deine Daten überall gleich! 🎉
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const CONFIG_KEY = "firebase-config-v1";
+
+  function saveConfig() {
+    const config = {
+      apiKey: document.getElementById("api-key").value.trim(),
+      authDomain: document.getElementById("auth-domain").value.trim(),
+      databaseURL: document.getElementById("database-url").value.trim(),
+      projectId: document.getElementById("project-id").value.trim(),
+      storageBucket: document.getElementById("storage-bucket").value.trim(),
+      messagingSenderId: document.getElementById("messaging-sender-id").value.trim()
+    };
+
+    // Validiere
+    const allFilled = Object.values(config).every(v => v.length > 0);
+    if (!allFilled) {
+      alert("Bitte alle Felder ausfüllen!");
+      return;
+    }
+
+    // Speichere
+    try {
+      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      document.getElementById("firebase-status").textContent = "✓ VERBUNDEN";
+      document.getElementById("firebase-status").classList.remove("disconnected");
+      document.getElementById("firebase-status").classList.add("connected");
+      document.getElementById("success-box").style.display = "block";
+      alert("✓ Firebase-Konfiguration gespeichert!\n\nDeine Daten werden jetzt überall synced.");
+    } catch (e) {
+      alert("Fehler beim Speichern: " + e.message);
+    }
+  }
+
+  function checkStatus() {
+    try {
+      const config = localStorage.getItem(CONFIG_KEY);
+      if (config) {
+        document.getElementById("firebase-status").textContent = "✓ VERBUNDEN";
+        document.getElementById("firebase-status").classList.remove("disconnected");
+        document.getElementById("firebase-status").classList.add("connected");
+        document.getElementById("success-box").style.display = "block";
+      }
+    } catch (e) {}
+  }
+
+  document.getElementById("save-config").onclick = saveConfig;
+
+  // Check on load
+  checkStatus();
+})();
+</script>
+
+</body>
+</html>

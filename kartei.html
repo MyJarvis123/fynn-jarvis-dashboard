@@ -6,6 +6,10 @@
 <title>KARTEI — JARVIS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+<script src="firebase-sync.js"></script>
 <style>
   :root {
     --bg-gradient: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
@@ -788,8 +792,32 @@
     });
   }
 
+  // Firebase Sync
+  let firebaseSync = null;
+
   (async function init() {
+    // Initialisiere lokale Daten
     await loadData();
+
+    // Initialisiere Firebase
+    if (typeof FirebaseSync !== "undefined") {
+      firebaseSync = new FirebaseSync("kartei");
+      const fbReady = await firebaseSync.init();
+
+      if (fbReady) {
+        // Versuche Daten von Firebase zu laden
+        const cloudData = await firebaseSync.syncFromCloud();
+        if (cloudData && cloudData.decks && cloudData.decks.length > 0) {
+          state = cloudData;
+          console.log("✓ Kartei von Firebase geladen");
+        } else if (state.decks.length > 0) {
+          // Speichere lokale Daten zu Firebase
+          await firebaseSync.syncToCloud(state);
+          console.log("✓ Kartei zu Firebase hochgeladen");
+        }
+      }
+    }
+
     if (state.decks.length === 0) {
       const deckId = uid();
       state.decks.push({ id: deckId, name: "Testfach", createdAt: Date.now(), xp: 0 });
@@ -800,6 +828,7 @@
       ];
       tests.forEach(t => { state.cards.push({ id: uid(), deckId, question: t.q, answer: t.a, ease: 2.5, interval: 0, reps: 0, due: todayISO(), createdAt: Date.now() }); });
       await saveData();
+      if (firebaseSync && firebaseSync.isConnected) await firebaseSync.syncToCloud(state);
     }
     render();
   })();
