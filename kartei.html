@@ -538,6 +538,11 @@
 
   async function loadData() {
     try {
+      if (!isLocalStorageAvailable()) {
+        console.warn("localStorage nicht verfügbar (Private Mode?)");
+        storageReady = true;
+        return;
+      }
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
@@ -549,13 +554,33 @@
         if (parsed.stats) state.stats = parsed.stats;
         if (Array.isArray(parsed.achievements)) state.achievements = parsed.achievements;
       }
-    } catch (e) { console.log("Keine gespeicherten Daten.", e); }
+    } catch (e) { console.error("Fehler beim Laden:", e); }
     storageReady = true;
   }
 
   async function saveData() {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-    catch (e) { console.error("Speicherfehler:", e); }
+    try {
+      if (!isLocalStorageAvailable()) {
+        console.warn("localStorage nicht verfügbar, kann nicht speichern");
+        return false;
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      return true;
+    } catch (e) {
+      console.error("Speicherfehler:", e);
+      return false;
+    }
+  }
+
+  function isLocalStorageAvailable() {
+    try {
+      const test = "__localStorage_test__";
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch (e) {
+      return false;
+    }
   }
 
   // SOUND - nur Basics, keine Musik
