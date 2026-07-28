@@ -393,23 +393,50 @@ const firebaseConfig = {
       messagingSenderId: document.getElementById("messaging-sender-id").value.trim()
     };
 
-    // Validiere
-    const allFilled = Object.values(config).every(v => v.length > 0);
-    if (!allFilled) {
-      alert("Bitte alle Felder ausfüllen!");
+    // Validiere ALLE Felder
+    const emptyFields = [];
+    Object.entries(config).forEach(([key, value]) => {
+      if (!value || value.length === 0) {
+        emptyFields.push(key);
+      }
+    });
+
+    if (emptyFields.length > 0) {
+      alert("❌ FEHLER: Diese Felder sind LEER:\n\n" + emptyFields.join("\n") + "\n\nBitte alle Felder komplett ausfüllen!");
+      return;
+    }
+
+    // Überprüfe auf Demo-Werte
+    const demoPatterns = ["YOUR_", "example", "project-name", "demo", "test123"];
+    const hasDemoValues = Object.values(config).some(v =>
+      demoPatterns.some(pattern => v.toLowerCase().includes(pattern.toLowerCase()))
+    );
+
+    if (hasDemoValues) {
+      alert("❌ FEHLER: Einige Werte sehen wie Demo-Werte aus!\n\nBitte nutze deine ECHTEN Firebase-Credentials von console.firebase.google.com");
       return;
     }
 
     // Speichere
     try {
       localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
+      console.log("✓ Config gespeichert:", Object.keys(config));
+
       document.getElementById("firebase-status").textContent = "✓ VERBUNDEN";
       document.getElementById("firebase-status").classList.remove("disconnected");
       document.getElementById("firebase-status").classList.add("connected");
       document.getElementById("success-box").style.display = "block";
-      alert("✓ Firebase-Konfiguration gespeichert!\n\nDeine Daten werden jetzt überall synced.");
+
+      // Verifyiere dass es gespeichert wurde
+      const saved = localStorage.getItem(CONFIG_KEY);
+      if (!saved) {
+        throw new Error("Config konnte nicht gespeichert werden (localStorage voll?)");
+      }
+
+      alert("✅ Firebase-Konfiguration ERFOLGREICH gespeichert!\n\n🔍 Prüfung:\n✓ Alle 6 Felder vorhanden\n✓ Keine Demo-Werte\n✓ Im localStorage gespeichert\n\n📱 Nächst: Auf Handy die gleichen Keys eintragen!\n\nDann synced alles automatisch!");
     } catch (e) {
-      alert("Fehler beim Speichern: " + e.message);
+      alert("❌ Fehler beim Speichern:\n" + e.message + "\n\n💡 Tipp: Private Mode? Browser-Storage deaktiviert?");
+      console.error("Save error:", e);
     }
   }
 
@@ -426,6 +453,17 @@ const firebaseConfig = {
   }
 
   document.getElementById("save-config").onclick = saveConfig;
+
+  // Auto-fill placeholder validation
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('blur', function() {
+      if (this.value.trim().length === 0) {
+        this.style.background = 'rgba(255, 107, 107, 0.2)';
+      } else {
+        this.style.background = '';
+      }
+    });
+  });
 
   // Check on load
   checkStatus();

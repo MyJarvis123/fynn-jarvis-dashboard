@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>STORAGE CHECK — JARVIS</title>
+<style>
+  body { background: #0f0f1e; color: #e0e0e0; font-family: monospace; padding: 20px; }
+  .header { color: #00ffc8; font-weight: bold; margin-bottom: 20px; }
+  .section { background: rgba(0,0,0,0.5); border: 1px solid #333; padding: 15px; margin-bottom: 15px; border-radius: 4px; }
+  .section-title { color: #00ffc8; font-weight: bold; margin-bottom: 10px; }
+  .item { margin: 8px 0; padding: 8px; background: rgba(0,0,0,0.3); border-radius: 3px; }
+  .label { color: #999; display: inline-block; width: 200px; }
+  .value { color: #00ffc8; word-break: break-all; }
+  .empty { color: #ff6b6b; }
+  .btn { background: #00ffc8; color: #0f0f1e; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 10px; font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div class="header">🔍 STORAGE CHECK — Was ist gespeichert?</div>
+
+<button class="btn" onclick="checkStorage()">▶ CHECK STORAGE</button>
+<button class="btn" onclick="clearAllAndReset()">🔄 RESET (LÖSCHT ALLES!)</button>
+
+<div id="results"></div>
+
+<script>
+function checkStorage() {
+  const results = document.getElementById('results');
+  results.innerHTML = "";
+
+  // Firebase Config
+  const firebaseConfig = localStorage.getItem('firebase-config-v1');
+  const hasConfig = !!firebaseConfig;
+
+  let configStatus = "❌ NICHT GESPEICHERT";
+  let configDetails = "";
+
+  if (firebaseConfig) {
+    try {
+      const config = JSON.parse(firebaseConfig);
+      const requiredFields = ['apiKey', 'authDomain', 'databaseURL', 'projectId'];
+      const allPresent = requiredFields.every(f => config[f]);
+      const allNonEmpty = requiredFields.every(f => config[f] && config[f].trim && config[f].trim().length > 0);
+
+      if (allPresent && allNonEmpty) {
+        configStatus = "✅ VOLLSTÄNDIG GESPEICHERT";
+      } else {
+        configStatus = "⚠️ TEILWEISE/LEER GESPEICHERT";
+      }
+
+      configDetails = `
+        <div class="item"><span class="label">apiKey:</span> <span class="${config.apiKey && config.apiKey.trim() ? 'value' : 'empty'}">${config.apiKey ? (config.apiKey.substring(0, 20) + '...') : 'LEER'}</span></div>
+        <div class="item"><span class="label">authDomain:</span> <span class="${config.authDomain && config.authDomain.trim() ? 'value' : 'empty'}">${config.authDomain || 'LEER'}</span></div>
+        <div class="item"><span class="label">databaseURL:</span> <span class="${config.databaseURL && config.databaseURL.trim() ? 'value' : 'empty'}">${config.databaseURL || 'LEER'}</span></div>
+        <div class="item"><span class="label">projectId:</span> <span class="${config.projectId && config.projectId.trim() ? 'value' : 'empty'}">${config.projectId || 'LEER'}</span></div>
+      `;
+    } catch (e) {
+      configStatus = "❌ JSON FEHLER";
+      configDetails = `<div class="item"><span class="empty">Parse Error: ${e.message}</span></div>`;
+    }
+  }
+
+  // Lokale Daten
+  const karteiData = localStorage.getItem('kartei-data-v4');
+  const financeData = localStorage.getItem('finance-data-v2');
+  const libraryData = localStorage.getItem('library-data-v2');
+  const bookmarksData = localStorage.getItem('bookmarks-data-v2');
+
+  let html = `
+    <div class="section">
+      <div class="section-title">🔐 FIREBASE CONFIGURATION</div>
+      <div class="item"><span class="label">Status:</span> <span class="${configStatus.includes('✅') ? 'value' : configStatus.includes('⚠️') ? '' : 'empty'}">${configStatus}</span></div>
+      ${configDetails}
+    </div>
+
+    <div class="section">
+      <div class="section-title">💾 LOKALE DATEN (localStorage)</div>
+      <div class="item"><span class="label">Kartei:</span> <span class="${karteiData ? 'value' : 'empty'}">${karteiData ? '✓ Vorhanden (' + karteiData.length + ' bytes)' : '✗ NICHT DA'}</span></div>
+      <div class="item"><span class="label">Finanztracker:</span> <span class="${financeData ? 'value' : 'empty'}">${financeData ? '✓ Vorhanden (' + financeData.length + ' bytes)' : '✗ NICHT DA'}</span></div>
+      <div class="item"><span class="label">Bibliothek:</span> <span class="${libraryData ? 'value' : 'empty'}">${libraryData ? '✓ Vorhanden (' + libraryData.length + ' bytes)' : '✗ NICHT DA'}</span></div>
+      <div class="item"><span class="label">Bookmarks:</span> <span class="${bookmarksData ? 'value' : 'empty'}">${bookmarksData ? '✓ Vorhanden (' + bookmarksData.length + ' bytes)' : '✗ NICHT DA'}</span></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📊 DIAGNOSE</div>
+      ${!configStatus.includes('✅') ?
+        '<div class="item"><span class="empty">⚠️ Firebase ist NICHT richtig konfiguriert!</span></div>' :
+        '<div class="item"><span class="value">✓ Firebase Config ist OK</span></div>'}
+      ${karteiData && financeData && libraryData && bookmarksData ?
+        '<div class="item"><span class="value">✓ Alle Daten sind lokal gespeichert</span></div>' :
+        '<div class="item"><span class="empty">⚠️ Nicht alle Daten sind gespeichert</span></div>'}
+    </div>
+
+    <div class="section" style="background: rgba(255, 107, 107, 0.1); border-color: #ff6b6b;">
+      <div class="section-title" style="color: #ff6b6b;">❌ WAS DU TUN MUSST:</div>
+      <div class="item" style="color: #ff6b6b;">
+        1. Öffne <strong>firebase-setup.html</strong><br>
+        2. Trage ALLE 6 Credentials komplett neu ein<br>
+        3. Klick "Konfiguration speichern"<br>
+        4. Dann hier "CHECK STORAGE" klicken → sollte ✅ zeigen<br>
+        5. Auf Handy: Gleiche Keys eintragen<br>
+        6. BOOM: Sync funktioniert!
+      </div>
+    </div>
+  `;
+
+  results.innerHTML = html;
+  console.log("Storage Check abgeschlossen");
+}
+
+function clearAllAndReset() {
+  if (confirm("⚠️ DAS LÖSCHT ALLES aus localStorage!\n\nWirklich alle Daten löschen?")) {
+    if (confirm("SICHER? Das kann nicht rückgängig gemacht werden!")) {
+      localStorage.clear();
+      alert("✅ localStorage komplett geleert!\n\nJetzt kannst du firebase-setup.html neuladen und alles neu eintragen.");
+      checkStorage();
+    }
+  }
+}
+
+// Auto-check on load
+window.onload = checkStorage;
+</script>
+
+</body>
+</html>
