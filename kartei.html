@@ -569,6 +569,10 @@
         return false;
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      // Sync zu Firebase wenn verfügbar
+      if (firebaseSync && firebaseSync.isConnected) {
+        await firebaseSync.syncToCloud(state);
+      }
       return true;
     } catch (e) {
       console.error("Speicherfehler:", e);

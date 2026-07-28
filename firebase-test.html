@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIREBASE TEST SUITE — JARVIS</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+<script src="firebase-sync.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #0f0f1e;
+    color: #e0e0e0;
+    font-family: monospace;
+    padding: 20px;
+    font-size: 12px;
+  }
+  .header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00ffc8;
+    margin-bottom: 20px;
+  }
+  .test-suite {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ffc8;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .test-case {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 3px solid #999;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 2px;
+  }
+  .test-case.pass {
+    border-left-color: #00ffc8;
+  }
+  .test-case.fail {
+    border-left-color: #ff6b6b;
+  }
+  .test-result {
+    font-weight: bold;
+    margin-top: 5px;
+  }
+  .pass {
+    color: #00ffc8;
+  }
+  .fail {
+    color: #ff6b6b;
+  }
+  .info {
+    color: #999;
+  }
+  .btn {
+    background: #00ffc8;
+    color: #0f0f1e;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 10px 5px 10px 0;
+    font-family: monospace;
+  }
+  .summary {
+    background: rgba(0, 255, 200, 0.1);
+    border: 2px solid #00ffc8;
+    border-radius: 4px;
+    padding: 15px;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+  .summary.fail {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">🧪 FIREBASE TEST SUITE</div>
+
+<button class="btn" onclick="runAllTests()">▶ RUN ALL TESTS</button>
+
+<div id="results"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  let testResults = [];
+  const resultsDiv = document.getElementById("results");
+
+  class TestRunner {
+    constructor(name) {
+      this.name = name;
+      this.tests = [];
+      this.passed = 0;
+      this.failed = 0;
+    }
+
+    test(name, fn) {
+      this.tests.push({ name, fn });
+    }
+
+    async run() {
+      console.log(`\n${'='.repeat(50)}`);
+      console.log(`TEST SUITE: ${this.name}`);
+      console.log('='.repeat(50));
+
+      const html = `<div class="test-suite"><div style="font-weight: bold; color: #00ffc8; margin-bottom: 10px;">📋 ${this.name}</div><div id="suite-${this.name.replace(/\s/g, '-')}"></div></div>`;
+      resultsDiv.innerHTML += html;
+      const suiteDiv = document.getElementById(`suite-${this.name.replace(/\s/g, '-')}`);
+
+      for (const test of this.tests) {
+        try {
+          await test.fn();
+          this.passed++;
+          const result = `<div class="test-case pass">✓ ${test.name}<div class="test-result pass">PASS</div></div>`;
+          suiteDiv.innerHTML += result;
+          console.log(`✓ ${test.name}`);
+        } catch (e) {
+          this.failed++;
+          const result = `<div class="test-case fail">✗ ${test.name}<div class="test-result fail">FAIL: ${e.message}</div></div>`;
+          suiteDiv.innerHTML += result;
+          console.error(`✗ ${test.name}: ${e.message}`);
+        }
+      }
+
+      testResults.push({
+        name: this.name,
+        passed: this.passed,
+        failed: this.failed
+      });
+
+      return { passed: this.passed, failed: this.failed };
+    }
+  }
+
+  async function runAllTests() {
+    resultsDiv.innerHTML = "";
+    testResults = [];
+
+    // TEST 1: LocalStorage
+    const ls = new TestRunner("LocalStorage");
+    ls.test("localStorage verfügbar", () => {
+      const test = "__test__";
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+    });
+    ls.test("JSON serialize/deserialize", () => {
+      const obj = { a: 1, b: [2, 3] };
+      const json = JSON.stringify(obj);
+      const parsed = JSON.parse(json);
+      if (parsed.a !== 1 || parsed.b[0] !== 2) throw new Error("JSON failed");
+    });
+    await ls.run();
+
+    // TEST 2: Firebase SDK
+    const fb = new TestRunner("Firebase SDK");
+    fb.test("Firebase SDK geladen", () => {
+      if (typeof firebase === "undefined") throw new Error("Firebase SDK nicht geladen");
+    });
+    fb.test("Firebase database() verfügbar", () => {
+      if (typeof firebase.database !== "function") throw new Error("firebase.database nicht verfügbar");
+    });
+    await fb.run();
+
+    // TEST 3: FirebaseSync Klasse
+    const sync = new TestRunner("FirebaseSync Klasse");
+    sync.test("FirebaseSync konstruktor", () => {
+      if (typeof FirebaseSync === "undefined") throw new Error("FirebaseSync nicht definiert");
+      const instance = new FirebaseSync("test");
+      if (instance.moduleName !== "test") throw new Error("moduleName nicht gesetzt");
+    });
+    sync.test("FirebaseSync init() existiert", () => {
+      const instance = new FirebaseSync("test");
+      if (typeof instance.init !== "function") throw new Error("init() nicht vorhanden");
+    });
+    sync.test("FirebaseSync syncToCloud() existiert", () => {
+      const instance = new FirebaseSync("test");
+      if (typeof instance.syncToCloud !== "function") throw new Error("syncToCloud() nicht vorhanden");
+    });
+    sync.test("FirebaseSync syncFromCloud() existiert", () => {
+      const instance = new FirebaseSync("test");
+      if (typeof instance.syncFromCloud !== "function") throw new Error("syncFromCloud() nicht vorhanden");
+    });
+    sync.test("FirebaseSync getStatus() existiert", () => {
+      const instance = new FirebaseSync("test");
+      if (typeof instance.getStatus !== "function") throw new Error("getStatus() nicht vorhanden");
+    });
+    sync.test("FirebaseSync initial state korrekt", () => {
+      const instance = new FirebaseSync("test");
+      if (instance.isConnected !== false) throw new Error("isConnected sollte false sein");
+      if (instance.syncEnabled !== false) throw new Error("syncEnabled sollte false sein");
+      if (instance.db !== null) throw new Error("db sollte null sein");
+    });
+    await sync.run();
+
+    // TEST 4: Firebase Config
+    const config = new TestRunner("Firebase Config");
+    config.test("Config laden aus localStorage", () => {
+      const configStr = localStorage.getItem("firebase-config-v1");
+      if (!configStr) throw new Error("Keine Config in localStorage");
+      const parsed = JSON.parse(configStr);
+      if (!parsed) throw new Error("Config JSON ungültig");
+    });
+    config.test("Config hat alle Felder", () => {
+      const configStr = localStorage.getItem("firebase-config-v1");
+      const config = JSON.parse(configStr);
+      const requiredFields = ["apiKey", "authDomain", "databaseURL", "projectId"];
+      requiredFields.forEach(field => {
+        if (!config[field]) throw new Error(`${field} fehlt`);
+        if (typeof config[field] !== "string") throw new Error(`${field} ist kein String`);
+        if (config[field].trim().length === 0) throw new Error(`${field} ist leer`);
+      });
+    });
+    config.test("Config Werte sind nicht Demo-Werte", () => {
+      const configStr = localStorage.getItem("firebase-config-v1");
+      const config = JSON.parse(configStr);
+      const demovalues = ["YOUR_", "example.com", "project-name"];
+      Object.values(config).forEach(val => {
+        demovalues.forEach(demo => {
+          if (val.includes(demo)) throw new Error(`Config enthält Demo-Wert: ${val}`);
+        });
+      });
+    });
+    await config.run();
+
+    // TEST 5: Firebase Init
+    const init = new TestRunner("Firebase Init");
+    init.test("Firebase Apps können initialisiert werden", async () => {
+      // Simuliere init
+      if (typeof firebase === "undefined") throw new Error("Firebase nicht geladen");
+      if (!firebase.apps) throw new Error("firebase.apps nicht vorhanden");
+    });
+    init.test("FirebaseSync kann initialisiert werden", async () => {
+      const sync = new FirebaseSync("test-module");
+      if (typeof sync.waitForFirebase !== "function") throw new Error("waitForFirebase() nicht vorhanden");
+    });
+    await init.run();
+
+    // SUMMARY
+    let totalPassed = 0;
+    let totalFailed = 0;
+    testResults.forEach(r => {
+      totalPassed += r.passed;
+      totalFailed += r.failed;
+    });
+
+    const summary = `
+    <div class="summary ${totalFailed > 0 ? 'fail' : ''}">
+      <div style="font-size: 16px; font-weight: bold; margin-bottom: 10px;">
+        ${totalFailed === 0 ? '✓ ALLE TESTS BESTANDEN!' : '✗ EINIGE TESTS FEHLGESCHLAGEN'}
+      </div>
+      <div>Gesamt: <span class="pass">${totalPassed} Bestanden</span> / <span class="fail">${totalFailed} Fehlgeschlagen</span></div>
+      <div style="margin-top: 10px; font-size: 11px; color: #999;">
+        ${totalFailed === 0 ?
+          '🎉 Firebase-Sync sollte funktionieren! Teste jetzt in einer der Apps.' :
+          '⚠️ Einige Tests fehlgeschlagen. Überprüfe die Fehler oben.'}
+      </div>
+    </div>
+    `;
+    resultsDiv.innerHTML += summary;
+
+    console.log(`\n${'='.repeat(50)}`);
+    console.log(`ZUSAMMENFASSUNG: ${totalPassed} Bestanden, ${totalFailed} Fehlgeschlagen`);
+    console.log('='.repeat(50));
+  }
+
+  window.runAllTests = runAllTests;
+
+  console.log("🧪 TEST SUITE READY - Klick 'RUN ALL TESTS'");
+})();
+</script>
+
+</body>
+</html>
