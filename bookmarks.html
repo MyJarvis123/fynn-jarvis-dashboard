@@ -426,6 +426,10 @@
         return false;
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      // Sync zu Firebase wenn verfügbar
+      if (firebaseSync && firebaseSync.isConnected) {
+        await firebaseSync.syncToCloud(state);
+      }
       return true;
     } catch (e) {
       console.error("Speicherfehler:", e);
@@ -595,8 +599,29 @@
     URL.revokeObjectURL(url);
   };
 
+  // Firebase Sync
+  let firebaseSync = null;
+
   (async function init() {
     await loadData();
+
+    // Initialisiere Firebase
+    if (typeof FirebaseSync !== "undefined") {
+      firebaseSync = new FirebaseSync("bookmarks");
+      const fbReady = await firebaseSync.init();
+
+      if (fbReady) {
+        const cloudData = await firebaseSync.syncFromCloud();
+        if (cloudData && cloudData.bookmarks && cloudData.bookmarks.length > 0) {
+          state = cloudData;
+          console.log("✓ Bookmarks von Firebase geladen");
+        } else if (state.bookmarks.length > 0) {
+          await firebaseSync.syncToCloud(state);
+          console.log("✓ Bookmarks zu Firebase hochgeladen");
+        }
+      }
+    }
+
     render();
   })();
 })();

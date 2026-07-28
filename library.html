@@ -394,6 +394,10 @@
         return false;
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      // Sync zu Firebase wenn verfügbar
+      if (firebaseSync && firebaseSync.isConnected) {
+        await firebaseSync.syncToCloud(state);
+      }
       return true;
     } catch (e) {
       console.error("Speicherfehler:", e);
@@ -507,8 +511,29 @@
     URL.revokeObjectURL(url);
   };
 
+  // Firebase Sync
+  let firebaseSync = null;
+
   (async function init() {
     await loadData();
+
+    // Initialisiere Firebase
+    if (typeof FirebaseSync !== "undefined") {
+      firebaseSync = new FirebaseSync("library");
+      const fbReady = await firebaseSync.init();
+
+      if (fbReady) {
+        const cloudData = await firebaseSync.syncFromCloud();
+        if (cloudData && cloudData.books && cloudData.books.length > 0) {
+          state = cloudData;
+          console.log("✓ Bibliothek von Firebase geladen");
+        } else if (state.books.length > 0) {
+          await firebaseSync.syncToCloud(state);
+          console.log("✓ Bibliothek zu Firebase hochgeladen");
+        }
+      }
+    }
+
     render();
   })();
 })();
