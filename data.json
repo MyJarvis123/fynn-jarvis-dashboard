@@ -37,5 +37,18 @@
     "sleep": 7,
     "sleepQuality": "ok",
     "notes": "Still household focus. Still exhausted. Energy 6/10 both days. Training resumes 28.07."
+  },
+  {
+    "date": "2026-07-28",
+    "training": true,
+    "trainingMinutes": 60,
+    "trainingType": "Core + Forearms (Strong Performance)",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "Dashboard Work Priority",
+    "energy": 8,
+    "sleep": 6,
+    "sleepQuality": "ok",
+    "notes": "Excellent core session, forearms performed well. Only 6h sleep but energy 8/10 (project motivation high). Dashboard/System work prioritized. Recht study deferred."
   }
 ]
