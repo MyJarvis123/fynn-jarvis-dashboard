@@ -377,11 +377,15 @@ const firebaseConfig = {
   </div>
 </div>
 
+<script src="storage-manager.js"></script>
 <script>
 (function(){
   "use strict";
 
   const CONFIG_KEY = "firebase-config-v1";
+
+  // Nutze StorageManager wenn verfügbar, sonst localStorage
+  const storageAPI = (typeof storage !== 'undefined' && storage) ? storage : localStorage;
 
   function saveConfig() {
     const config = {
@@ -417,39 +421,111 @@ const firebaseConfig = {
       return;
     }
 
-    // Speichere
+    // Speichere mit MEHREREN VERSUCHEN
     try {
-      localStorage.setItem(CONFIG_KEY, JSON.stringify(config));
-      console.log("✓ Config gespeichert:", Object.keys(config));
+      const jsonConfig = JSON.stringify(config);
+
+      // Versuch 1: localStorage.setItem
+      try {
+        localStorage.setItem(CONFIG_KEY, jsonConfig);
+        console.log("✓ Gespeichert in localStorage");
+      } catch (e1) {
+        console.warn("⚠️ localStorage fehlgeschlagen:", e1.message);
+        // Fallback: sessionStorage
+        try {
+          sessionStorage.setItem(CONFIG_KEY, jsonConfig);
+          console.log("✓ Gespeichert in sessionStorage (wird bei Tab-Close gelöscht!)");
+        } catch (e2) {
+          console.error("❌ Auch sessionStorage fehlgeschlagen:", e2.message);
+          throw new Error("Speicher nicht verfügbar! Ist Private Mode aktiviert?");
+        }
+      }
+
+      // VERIFYIERUNG: Stelle sicher dass Daten wirklich gespeichert wurden
+      let verifySuccess = false;
+      let savedData = null;
+
+      try {
+        savedData = localStorage.getItem(CONFIG_KEY);
+        if (savedData && JSON.parse(savedData).projectId === config.projectId) {
+          verifySuccess = true;
+          console.log("✓ Verifyierung erfolgreich: Daten sind gespeichert!");
+        }
+      } catch (e) {
+        console.warn("⚠️ localStorage Verifyierung fehlgeschlagen");
+      }
+
+      if (!verifySuccess) {
+        try {
+          savedData = sessionStorage.getItem(CONFIG_KEY);
+          if (savedData && JSON.parse(savedData).projectId === config.projectId) {
+            verifySuccess = true;
+            console.log("✓ Verifyierung erfolgreich in sessionStorage!");
+          }
+        } catch (e) {
+          console.error("❌ Auch sessionStorage Verifyierung fehlgeschlagen");
+        }
+      }
+
+      if (!verifySuccess) {
+        throw new Error("Verifyierung fehlgeschlagen: Daten wurden nicht korrekt gespeichert!");
+      }
 
       document.getElementById("firebase-status").textContent = "✓ VERBUNDEN";
       document.getElementById("firebase-status").classList.remove("disconnected");
       document.getElementById("firebase-status").classList.add("connected");
       document.getElementById("success-box").style.display = "block";
 
-      // Verifyiere dass es gespeichert wurde
-      const saved = localStorage.getItem(CONFIG_KEY);
-      if (!saved) {
-        throw new Error("Config konnte nicht gespeichert werden (localStorage voll?)");
-      }
-
-      alert("✅ Firebase-Konfiguration ERFOLGREICH gespeichert!\n\n🔍 Prüfung:\n✓ Alle 6 Felder vorhanden\n✓ Keine Demo-Werte\n✓ Im localStorage gespeichert\n\n📱 Nächst: Auf Handy die gleichen Keys eintragen!\n\nDann synced alles automatisch!");
+      alert("✅ Firebase-Konfiguration ERFOLGREICH gespeichert!\n\n🔍 Verifyierung:\n✓ Alle 6 Felder vorhanden\n✓ Keine Demo-Werte\n✓ Im Browser-Storage gespeichert\n✓ Daten korrekt verifiziert\n\n📱 Nächst: Auf Handy die gleichen Keys eintragen!\n\nDann synced alles automatisch!");
     } catch (e) {
-      alert("❌ Fehler beim Speichern:\n" + e.message + "\n\n💡 Tipp: Private Mode? Browser-Storage deaktiviert?");
+      alert("❌ Fehler beim Speichern:\n" + e.message + "\n\n💡 Tipps:\n- Private Mode deaktivieren?\n- Browser neu starten?\n- Storage-Einstellungen prüfen?");
       console.error("Save error:", e);
     }
   }
 
   function checkStatus() {
     try {
-      const config = localStorage.getItem(CONFIG_KEY);
-      if (config) {
-        document.getElementById("firebase-status").textContent = "✓ VERBUNDEN";
-        document.getElementById("firebase-status").classList.remove("disconnected");
-        document.getElementById("firebase-status").classList.add("connected");
-        document.getElementById("success-box").style.display = "block";
+      // Prüfe localStorage
+      let config = null;
+      let source = "NICHT GEFUNDEN";
+
+      try {
+        config = localStorage.getItem(CONFIG_KEY);
+        if (config) source = "localStorage";
+      } catch (e) {
+        console.warn("⚠️ localStorage nicht verfügbar");
       }
-    } catch (e) {}
+
+      // Fallback: sessionStorage
+      if (!config) {
+        try {
+          config = sessionStorage.getItem(CONFIG_KEY);
+          if (config) source = "sessionStorage";
+        } catch (e) {
+          console.warn("⚠️ sessionStorage nicht verfügbar");
+        }
+      }
+
+      if (config) {
+        try {
+          const parsed = JSON.parse(config);
+          // Prüfe ob Daten vollständig sind
+          if (parsed.projectId && parsed.projectId.length > 0) {
+            document.getElementById("firebase-status").textContent = "✓ VERBUNDEN (" + source + ")";
+            document.getElementById("firebase-status").classList.remove("disconnected");
+            document.getElementById("firebase-status").classList.add("connected");
+            document.getElementById("success-box").style.display = "block";
+            console.log("✓ Config gefunden und korrekt:", parsed.projectId);
+          } else {
+            console.warn("⚠️ Config ist leer/unvollständig");
+          }
+        } catch (e) {
+          console.error("❌ Config JSON Parse Error:", e);
+        }
+      }
+    } catch (e) {
+      console.error("Status check Fehler:", e);
+    }
   }
 
   document.getElementById("save-config").onclick = saveConfig;
