@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOOKMARK ARCHIV — JARVIS</title>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+    --bg-card: rgba(20, 20, 40, 0.8);
+    --bg-card-hover: rgba(20, 20, 40, 1);
+    --cyan: #00ffc8;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --border-color: rgba(0, 255, 200, 0.15);
+    --border-hover: rgba(0, 255, 200, 0.4);
+    --glow: 0 8px 32px rgba(0, 255, 200, 0.1);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: rgba(20, 20, 40, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .navbar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+  }
+
+  .navbar-button {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-button:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  #app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 32px 90px;
+  }
+
+  .header {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 24px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b0b0b0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+
+  input[type="text"],
+  input[type="url"],
+  textarea,
+  select {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+  }
+
+  input[type="text"]:focus,
+  input[type="url"]:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--border-hover);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 12px rgba(0, 255, 200, 0.2);
+  }
+
+  .btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  .btn.primary {
+    background: var(--cyan);
+    color: #0f0f1e;
+  }
+
+  .btn.primary:hover {
+    background: #33ffdb;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .bookmark-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .bookmark-row:hover {
+    border-color: var(--border-hover);
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .bookmark-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--cyan);
+  }
+
+  .bookmark-url {
+    font-size: 12px;
+    color: var(--text-secondary);
+    word-break: break-all;
+    margin: 4px 0;
+  }
+
+  .bookmark-url a {
+    color: var(--cyan);
+    text-decoration: none;
+  }
+
+  .bookmark-url a:hover {
+    text-decoration: underline;
+  }
+
+  .bookmark-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 4px 0;
+  }
+
+  .bookmark-meta {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  .bookmark-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    background: rgba(0, 255, 200, 0.15);
+    color: var(--cyan);
+    padding: 3px 8px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .bookmark-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  .icon-btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+  }
+
+  .filter-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+
+  .filter-input {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .stat-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+
+  .tag-list {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .tag-btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tag-btn:hover,
+  .tag-btn.active {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 12px 16px;
+    }
+
+    #app {
+      padding: 0 16px 60px;
+    }
+
+    .filter-row {
+      flex-direction: column;
+    }
+
+    .filter-input {
+      min-width: auto;
+    }
+
+    .bookmark-row {
+      flex-direction: column;
+    }
+
+    .bookmark-actions {
+      justify-content: flex-start;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-title">🔖 BOOKMARK ARCHIV</div>
+  <a href="index.html" class="navbar-button">← Zurück zu HUB</a>
+</div>
+
+<div id="app">
+  <div class="header">🔖 BOOKMARK ARCHIV</div>
+
+  <div class="stat-box" style="max-width: 300px;">
+    <div class="stat-label">Links gespeichert</div>
+    <div class="stat-value" id="bookmark-count">0</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Neuen Link speichern</div>
+    <input type="url" id="bm-url" placeholder="URL (https://example.com)" style="margin-top: 14px;">
+    <input type="text" id="bm-title" placeholder="Titel (optional)">
+    <textarea id="bm-desc" placeholder="Beschreibung (optional)"></textarea>
+    <label>Tags (kommagetrennt)</label>
+    <input type="text" id="bm-tags" placeholder="z.B. Dev, Recht, Finanz">
+    <button class="btn primary" id="add-bm" style="margin-top: 12px;">Link speichern</button>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="search-bm" placeholder="Nach Titel oder URL suchen..." class="filter-input">
+    <button class="btn" id="export-bm">📥 Exportieren</button>
+  </div>
+
+  <div id="tags-filter" class="tag-list"></div>
+
+  <div id="bookmarks-list"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "bookmarks-data-v1";
+  let state = { bookmarks: [] };
+  let activeTag = null;
+
+  function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+
+  async function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state.bookmarks = JSON.parse(raw);
+    } catch (e) { console.log("Keine Bookmarks gefunden."); }
+  }
+
+  async function saveData() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error("Speicherfehler:", e); }
+  }
+
+  function getAllTags() {
+    const tags = new Set();
+    state.bookmarks.forEach(b => b.tags.forEach(t => tags.add(t)));
+    return Array.from(tags).sort();
+  }
+
+  function render() {
+    const query = document.getElementById("search-bm").value.toLowerCase();
+    let filtered = state.bookmarks.filter(b =>
+      b.title.toLowerCase().includes(query) || b.url.toLowerCase().includes(query) || b.desc.toLowerCase().includes(query)
+    );
+
+    if (activeTag) {
+      filtered = filtered.filter(b => b.tags.includes(activeTag));
+    }
+
+    document.getElementById("bookmark-count").textContent = state.bookmarks.length;
+
+    // Render tags
+    const tags = getAllTags();
+    document.getElementById("tags-filter").innerHTML = tags.map(t => `
+      <button class="tag-btn ${activeTag === t ? 'active' : ''}" data-tag="${t}">${t}</button>
+    `).join("");
+    document.querySelectorAll("[data-tag]").forEach(btn => {
+      btn.onclick = () => {
+        activeTag = activeTag === btn.dataset.tag ? null : btn.dataset.tag;
+        render();
+      };
+    });
+
+    // Render bookmarks
+    if (filtered.length === 0) {
+      document.getElementById("bookmarks-list").innerHTML = '<div class="empty-state">Noch keine Links gespeichert</div>';
+      return;
+    }
+
+    document.getElementById("bookmarks-list").innerHTML = filtered.map(b => `
+      <div class="bookmark-row">
+        <div>
+          <div class="bookmark-title">${escapeHtml(b.title || "Unbenannt")}</div>
+          <div class="bookmark-url"><a href="${escapeHtml(b.url)}" target="_blank" rel="noopener">🔗 ${escapeHtml(b.url.substring(0, 80))}${b.url.length > 80 ? "..." : ""}</a></div>
+          ${b.desc ? `<div class="bookmark-desc">${escapeHtml(b.desc)}</div>` : ""}
+        </div>
+        <div class="bookmark-meta">
+          <div style="flex: 1;">
+            ${b.tags.length > 0 ? `<div class="bookmark-tags">${b.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+          </div>
+          <div style="font-size: 11px; color: var(--text-secondary);">Hinzugefügt: ${b.dateAdded}</div>
+          <div class="bookmark-actions">
+            <button class="icon-btn copy" data-id="${b.id}" title="Link kopieren">📋</button>
+            <button class="icon-btn del" data-id="${b.id}" title="Löschen" style="color: #ff6b6b;">✕</button>
+          </div>
+        </div>
+      </div>`).join("");
+
+    document.querySelectorAll(".icon-btn.del").forEach(btn => {
+      btn.onclick = async () => {
+        state.bookmarks = state.bookmarks.filter(b => b.id !== btn.dataset.id);
+        await saveData();
+        render();
+      };
+    });
+
+    document.querySelectorAll(".icon-btn.copy").forEach(btn => {
+      btn.onclick = () => {
+        const bm = state.bookmarks.find(b => b.id === btn.dataset.id);
+        if (bm) {
+          navigator.clipboard.writeText(bm.url).then(() => {
+            btn.textContent = "✓";
+            setTimeout(() => btn.textContent = "📋", 2000);
+          });
+        }
+      };
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+
+  document.getElementById("add-bm").onclick = async () => {
+    const url = document.getElementById("bm-url").value.trim();
+    const title = document.getElementById("bm-title").value.trim();
+    const desc = document.getElementById("bm-desc").value.trim();
+    const tagsStr = document.getElementById("bm-tags").value.trim();
+    const tags = tagsStr ? tagsStr.split(",").map(t => t.trim()) : [];
+
+    if (url) {
+      const today = new Date().toLocaleDateString('de-DE');
+      state.bookmarks.push({
+        id: uid(),
+        url,
+        title: title || new URL(url).hostname,
+        desc,
+        tags,
+        dateAdded: today
+      });
+      await saveData();
+      document.getElementById("bm-url").value = "";
+      document.getElementById("bm-title").value = "";
+      document.getElementById("bm-desc").value = "";
+      document.getElementById("bm-tags").value = "";
+      render();
+    }
+  };
+
+  document.getElementById("search-bm").oninput = () => render();
+
+  document.getElementById("export-bm").onclick = () => {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Bookmark Archiv</title>
+  <style>
+    body { font-family: sans-serif; background: #f5f5f5; padding: 20px; }
+    .bookmark { background: white; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .title { font-weight: bold; font-size: 16px; color: #333; }
+    .url { color: #0066cc; text-decoration: none; }
+    .desc { color: #666; margin-top: 5px; font-size: 14px; }
+    .tags { margin-top: 8px; }
+    .tag { display: inline-block; background: #e0e0e0; padding: 3px 8px; border-radius: 3px; font-size: 12px; margin-right: 5px; }
+    .date { font-size: 12px; color: #999; }
+  </style>
+</head>
+<body>
+  <h1>🔖 Bookmark Archiv</h1>
+  ${state.bookmarks.map(b => `
+  <div class="bookmark">
+    <div class="title">${escapeHtml(b.title)}</div>
+    <a href="${escapeHtml(b.url)}" class="url" target="_blank">${escapeHtml(b.url)}</a>
+    ${b.desc ? `<div class="desc">${escapeHtml(b.desc)}</div>` : ""}
+    <div class="tags">
+      ${b.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join("")}
+    </div>
+    <div class="date">${b.dateAdded}</div>
+  </div>
+  `).join("")}
+</body>
+</html>`;
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `bookmarks-${new Date().toISOString().split('T')[0]}.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  (async function init() {
+    await loadData();
+    render();
+  })();
+})();
+</script>
+
+</body>
+</html>

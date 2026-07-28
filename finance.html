@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FINANZTRACKER — JARVIS</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1"></script>
+<style>
+  :root {
+    --bg-gradient: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
+    --bg-card: rgba(20, 20, 40, 0.8);
+    --bg-card-hover: rgba(20, 20, 40, 1);
+    --cyan: #00ffc8;
+    --text-primary: #e0e0e0;
+    --text-secondary: #999;
+    --border-color: rgba(0, 255, 200, 0.15);
+    --border-hover: rgba(0, 255, 200, 0.4);
+    --glow: 0 8px 32px rgba(0, 255, 200, 0.1);
+    --color-income: #00ffc8;
+    --color-expense: #ff6b6b;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+  }
+
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 32px;
+    background: rgba(20, 20, 40, 0.95);
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .navbar-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+  }
+
+  .navbar-button {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .navbar-button:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  #app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 32px 90px;
+  }
+
+  .header {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    margin-bottom: 24px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 24px;
+  }
+
+  .card:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+    box-shadow: var(--glow);
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #b0b0b0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .stat-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cyan);
+  }
+
+  .stat-value.expense {
+    color: var(--color-expense);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 16px;
+  }
+
+  @media (max-width: 1000px) {
+    .form-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  select {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="date"]:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--border-hover);
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 12px rgba(0, 255, 200, 0.2);
+  }
+
+  .btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  .btn.primary {
+    background: var(--cyan);
+    color: #0f0f1e;
+  }
+
+  .btn.primary:hover {
+    background: #33ffdb;
+  }
+
+  .transaction-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .transaction-row:hover {
+    border-color: var(--border-hover);
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .transaction-content {
+    flex: 1;
+  }
+
+  .transaction-desc {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .transaction-meta {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  .transaction-amount {
+    font-size: 16px;
+    font-weight: 700;
+    min-width: 100px;
+    text-align: right;
+  }
+
+  .transaction-amount.income {
+    color: var(--color-income);
+  }
+
+  .transaction-amount.expense {
+    color: var(--color-expense);
+  }
+
+  .icon-btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    background: rgba(0, 255, 200, 0.2);
+    border-color: var(--border-hover);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-secondary);
+  }
+
+  .chart-container {
+    position: relative;
+    height: 300px;
+    margin-bottom: 24px;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    background: rgba(0, 255, 200, 0.1);
+    border: 1px solid var(--border-color);
+    color: var(--cyan);
+    padding: 10px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .tab-btn.active {
+    background: var(--cyan);
+    color: #0f0f1e;
+  }
+
+  @media (max-width: 768px) {
+    .navbar {
+      padding: 12px 16px;
+    }
+
+    #app {
+      padding: 0 16px 60px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .transaction-row {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="navbar">
+  <div class="navbar-title">💰 FINANZTRACKER</div>
+  <a href="index.html" class="navbar-button">← Zurück zu HUB</a>
+</div>
+
+<div id="app">
+  <div class="header">💰 FINANZTRACKER</div>
+
+  <div class="stats-grid" id="stats"></div>
+
+  <div class="card">
+    <div class="card-title">Neue Transaktion</div>
+    <div class="form-row">
+      <div>
+        <label for="trans-desc">Beschreibung</label>
+        <input type="text" id="trans-desc" placeholder="z.B. Kaffee, Gehalt">
+      </div>
+      <div>
+        <label for="trans-amount">Betrag (€)</label>
+        <input type="number" id="trans-amount" placeholder="0.00" step="0.01">
+      </div>
+      <div>
+        <label for="trans-cat">Kategorie</label>
+        <select id="trans-cat">
+          <option value="Lebensmittel">Lebensmittel</option>
+          <option value="Transport">Transport</option>
+          <option value="Miete">Miete</option>
+          <option value="Training">Training</option>
+          <option value="Bücher">Bücher & Bildung</option>
+          <option value="Entertainment">Entertainment</option>
+          <option value="Sonstiges">Sonstiges</option>
+          <option value="Gehalt">Gehalt</option>
+          <option value="Sparen">Sparen</option>
+        </select>
+      </div>
+      <div>
+        <label for="trans-type">Typ</label>
+        <select id="trans-type">
+          <option value="expense">Ausgabe</option>
+          <option value="income">Einnahme</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-bottom: 0;">
+      <div>
+        <label for="trans-date">Datum</label>
+        <input type="date" id="trans-date">
+      </div>
+      <button class="btn primary" id="add-trans" style="grid-column: auto; align-self: flex-end;">Hinzufügen</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Übersicht</div>
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="transactions">Transaktionen</button>
+      <button class="tab-btn" data-tab="categories">Nach Kategorie</button>
+    </div>
+    <div id="tab-transactions">
+      <div id="transactions-list"></div>
+    </div>
+    <div id="tab-categories" style="display: none;">
+      <div class="chart-container">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const STORAGE_KEY = "finance-data-v1";
+
+  let state = {
+    transactions: []
+  };
+
+  let chartInstance = null;
+
+  function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36); }
+  function todayISO() { return new Date().toISOString().split('T')[0]; }
+
+  async function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) state.transactions = JSON.parse(raw);
+    } catch (e) { console.log("Keine Daten gefunden."); }
+  }
+
+  async function saveData() {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch (e) { console.error("Speicherfehler:", e); }
+  }
+
+  function renderStats() {
+    const thisMonth = todayISO().slice(0, 7);
+    const monthTrans = state.transactions.filter(t => t.date.startsWith(thisMonth));
+    const income = monthTrans.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+    const expenses = monthTrans.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+    const balance = income - expenses;
+
+    document.getElementById("stats").innerHTML = `
+      <div class="stat-box">
+        <div class="stat-label">Einnahmen (Monat)</div>
+        <div class="stat-value income">+${income.toFixed(2)}€</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Ausgaben (Monat)</div>
+        <div class="stat-value expense">-${expenses.toFixed(2)}€</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Bilanz</div>
+        <div class="stat-value" style="color: ${balance >= 0 ? 'var(--color-income)' : 'var(--color-expense)'};">${balance >= 0 ? '+' : ''}${balance.toFixed(2)}€</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">Transaktionen</div>
+        <div class="stat-value">${state.transactions.length}</div>
+      </div>
+    `;
+  }
+
+  function renderTransactions() {
+    const sorted = [...state.transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
+    const html = sorted.length === 0 ? '<div class="empty-state">Noch keine Transaktionen</div>' :
+      sorted.map(t => `
+      <div class="transaction-row">
+        <div class="transaction-content">
+          <div class="transaction-desc">${t.desc}</div>
+          <div class="transaction-meta">${t.category} • ${t.date}</div>
+        </div>
+        <div class="transaction-amount ${t.type}">${t.type === 'income' ? '+' : '-'}${t.amount.toFixed(2)}€</div>
+        <button class="icon-btn del" data-id="${t.id}">✕</button>
+      </div>`).join("");
+    document.getElementById("transactions-list").innerHTML = html;
+    document.querySelectorAll(".icon-btn.del").forEach(btn => {
+      btn.onclick = async () => {
+        state.transactions = state.transactions.filter(t => t.id !== btn.dataset.id);
+        await saveData();
+        render();
+      };
+    });
+  }
+
+  function renderCharts() {
+    const thisMonth = todayISO().slice(0, 7);
+    const monthTrans = state.transactions.filter(t => t.date.startsWith(thisMonth) && t.type === 'expense');
+    const catMap = {};
+    monthTrans.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+
+    const ctx = document.getElementById('categoryChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
+    chartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: Object.keys(catMap),
+        datasets: [{
+          data: Object.values(catMap),
+          backgroundColor: ['#00ffc8', '#ff6b6b', '#ffa94d', '#74c0fc', '#b197fc', '#ff922b', '#51cf66', '#a78bfa'],
+          borderColor: 'rgba(20, 20, 40, 1)',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { labels: { color: '#e0e0e0' } }
+        }
+      }
+    });
+  }
+
+  function render() {
+    renderStats();
+    renderTransactions();
+  }
+
+  document.getElementById("trans-date").valueAsDate = new Date();
+
+  document.getElementById("add-trans").onclick = async () => {
+    const desc = document.getElementById("trans-desc").value.trim();
+    const amount = parseFloat(document.getElementById("trans-amount").value);
+    const cat = document.getElementById("trans-cat").value;
+    const type = document.getElementById("trans-type").value;
+    const date = document.getElementById("trans-date").value;
+
+    if (desc && amount > 0 && date) {
+      state.transactions.push({ id: uid(), desc, amount, category: cat, type, date });
+      await saveData();
+      document.getElementById("trans-desc").value = "";
+      document.getElementById("trans-amount").value = "";
+      render();
+    }
+  };
+
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll("[id^='tab-']").forEach(tab => tab.style.display = "none");
+      btn.classList.add("active");
+      const tabId = "tab-" + btn.dataset.tab;
+      document.getElementById(tabId).style.display = "block";
+      if (btn.dataset.tab === "categories") renderCharts();
+    };
+  });
+
+  (async function init() {
+    await loadData();
+    render();
+  })();
+})();
+</script>
+
+</body>
+</html>
