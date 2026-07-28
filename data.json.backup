@@ -1,0 +1,41 @@
+[
+  {
+    "date": "2026-07-25",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest - Back Pain",
+    "recht": true,
+    "rechtMinutes": 30,
+    "rechtType": "Memory Palace",
+    "energy": 4,
+    "sleep": 9,
+    "sleepQuality": "good",
+    "notes": "Recovery day due to back strain. Memory Palace session smooth."
+  },
+  {
+    "date": "2026-07-26",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest - Household Focus",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 6,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Household focus. No training. No Recht. CNS fatigue from recovery + household work."
+  },
+  {
+    "date": "2026-07-27",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest - Household Focus",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 6,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Still household focus. Still exhausted. Energy 6/10 both days. Training resumes 28.07."
+  }
+]
