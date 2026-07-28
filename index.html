@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS HUB</title>
-    <!-- Storage Manager (für robuste Persistierung) -->
-    <script src="storage-manager.js"></script>
+    <!-- ⚠️ MUSS ZUERST GELADEN WERDEN: Überschreibt localStorage mit Fallbacks -->
+    <script src="persistent-storage.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
