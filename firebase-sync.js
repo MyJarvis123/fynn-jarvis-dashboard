@@ -10,50 +10,78 @@ class FirebaseSync {
     this.db = null;
     this.isConnected = false;
     this.syncEnabled = false;
+    this.initPromise = null;
+  }
+
+  // Warte auf Firebase SDK zu laden
+  async waitForFirebase(timeout = 5000) {
+    const startTime = Date.now();
+    while (typeof firebase === "undefined") {
+      if (Date.now() - startTime > timeout) {
+        console.error("Firebase SDK Timeout");
+        return false;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    return true;
   }
 
   // Initialisiere Firebase
   async init() {
-    try {
-      // Lade Firebase-Config aus localStorage
-      const configStr = localStorage.getItem("firebase-config-v1");
-      if (!configStr) {
-        console.log("Firebase nicht konfiguriert");
-        return false;
-      }
-
-      const config = JSON.parse(configStr);
-
-      // Überprüfe ob alle Felder vorhanden sind
-      const requiredFields = ["apiKey", "authDomain", "databaseURL", "projectId"];
-      const isConfigValid = requiredFields.every(field => config[field]);
-
-      if (!isConfigValid) {
-        console.warn("Firebase-Config unvollständig");
-        return false;
-      }
-
-      // Prüfe ob Firebase SDK geladen ist
-      if (typeof firebase === "undefined") {
-        console.warn("Firebase SDK nicht geladen");
-        return false;
-      }
-
-      // Initialisiere Firebase
-      if (!firebase.apps.length) {
-        firebase.initializeApp(config);
-      }
-
-      this.db = firebase.database();
-      this.isConnected = true;
-      this.syncEnabled = true;
-
-      console.log(`✓ Firebase sync aktiviert für ${this.moduleName}`);
-      return true;
-    } catch (e) {
-      console.error("Firebase init error:", e);
-      return false;
+    // Verhindere mehrfaches Initialisieren
+    if (this.initPromise) {
+      return await this.initPromise;
     }
+
+    this.initPromise = (async () => {
+      try {
+        // Warte auf Firebase SDK
+        const fbLoaded = await this.waitForFirebase();
+        if (!fbLoaded) {
+          console.error("Firebase SDK nicht verfügbar");
+          return false;
+        }
+
+        // Lade Firebase-Config aus localStorage
+        const configStr = localStorage.getItem("firebase-config-v1");
+        if (!configStr) {
+          console.warn(`[${this.moduleName}] Firebase nicht konfiguriert`);
+          return false;
+        }
+
+        const config = JSON.parse(configStr);
+
+        // Überprüfe ob alle Felder vorhanden sind
+        const requiredFields = ["apiKey", "authDomain", "databaseURL", "projectId"];
+        const isConfigValid = requiredFields.every(field => config[field] && config[field].trim && config[field].trim().length > 0);
+
+        if (!isConfigValid) {
+          console.warn(`[${this.moduleName}] Firebase-Config unvollständig oder leer`);
+          console.log("Config:", config);
+          return false;
+        }
+
+        // Initialisiere Firebase (nur einmal)
+        if (!firebase.apps || firebase.apps.length === 0) {
+          firebase.initializeApp(config);
+          console.log("✓ Firebase initialisiert");
+        } else {
+          console.log("✓ Firebase bereits initialisiert");
+        }
+
+        this.db = firebase.database();
+        this.isConnected = true;
+        this.syncEnabled = true;
+
+        console.log(`✓ Firebase sync aktiviert für ${this.moduleName}`);
+        return true;
+      } catch (e) {
+        console.error(`[${this.moduleName}] Firebase init error:`, e);
+        return false;
+      }
+    })();
+
+    return await this.initPromise;
   }
 
   // Speichere Daten zu Firebase

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIREBASE DEBUG — JARVIS</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+<script src="firebase-sync.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #0f0f1e;
+    color: #e0e0e0;
+    font-family: monospace;
+    padding: 20px;
+    font-size: 12px;
+  }
+  .header {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00ffc8;
+    margin-bottom: 20px;
+  }
+  .status {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #00ffc8;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 15px;
+  }
+  .status-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 5px;
+  }
+  .label {
+    color: #999;
+    width: 200px;
+  }
+  .value {
+    color: #00ffc8;
+    font-weight: bold;
+  }
+  .value.error {
+    color: #ff6b6b;
+  }
+  .value.success {
+    color: #00ffc8;
+  }
+  .logs {
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid #333;
+    border-radius: 4px;
+    padding: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    margin-top: 20px;
+  }
+  .log-line {
+    margin: 3px 0;
+    padding: 2px 5px;
+  }
+  .log-line.error {
+    color: #ff6b6b;
+  }
+  .log-line.success {
+    color: #00ffc8;
+  }
+  .log-line.warning {
+    color: #ffa94d;
+  }
+  .btn {
+    background: #00ffc8;
+    color: #0f0f1e;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    margin: 10px 5px 10px 0;
+    font-family: monospace;
+  }
+  .btn:hover {
+    background: #33ffdb;
+  }
+  .section {
+    margin-top: 30px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">🔍 FIREBASE DEBUG CONSOLE</div>
+
+<div class="status">
+  <div class="status-row">
+    <div class="label">Firebase SDK</div>
+    <div class="value" id="sdk-status">⏳ Laden...</div>
+  </div>
+  <div class="status-row">
+    <div class="label">Firebase Config</div>
+    <div class="value" id="config-status">⏳ Prüfe...</div>
+  </div>
+  <div class="status-row">
+    <div class="label">Firebase DB Connection</div>
+    <div class="value" id="db-status">⏳ Prüfe...</div>
+  </div>
+  <div class="status-row">
+    <div class="label">LocalStorage</div>
+    <div class="value" id="local-status">⏳ Prüfe...</div>
+  </div>
+</div>
+
+<div class="section">
+  <div style="margin-bottom: 10px;">
+    <button class="btn" onclick="testSync('kartei')">Test Kartei Sync</button>
+    <button class="btn" onclick="testSync('finance')">Test Finanztracker Sync</button>
+    <button class="btn" onclick="testSync('library')">Test Bibliothek Sync</button>
+    <button class="btn" onclick="testSync('bookmarks')">Test Bookmarks Sync</button>
+  </div>
+</div>
+
+<div class="logs">
+  <div id="console-output"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  let logs = [];
+
+  // Override console
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalWarn = console.warn;
+
+  console.log = function(...args) {
+    originalLog(...args);
+    logs.push({ type: 'log', text: args.join(' ') });
+    updateLogs();
+  };
+
+  console.error = function(...args) {
+    originalError(...args);
+    logs.push({ type: 'error', text: args.join(' ') });
+    updateLogs();
+  };
+
+  console.warn = function(...args) {
+    originalWarn(...args);
+    logs.push({ type: 'warning', text: args.join(' ') });
+    updateLogs();
+  };
+
+  function updateLogs() {
+    const output = document.getElementById('console-output');
+    output.innerHTML = logs.slice(-50).map(log =>
+      `<div class="log-line ${log.type}">${new Date().toLocaleTimeString()} | ${log.text}</div>`
+    ).join('');
+    output.scrollTop = output.scrollHeight;
+  }
+
+  // Check Status
+  async function checkStatus() {
+    console.log("=== STATUS CHECK ===");
+
+    // Firebase SDK
+    if (typeof firebase !== "undefined") {
+      document.getElementById('sdk-status').textContent = "✓ GELADEN";
+      document.getElementById('sdk-status').className = "value success";
+      console.log("✓ Firebase SDK geladen");
+    } else {
+      document.getElementById('sdk-status').textContent = "✗ NICHT GELADEN";
+      document.getElementById('sdk-status').className = "value error";
+      console.error("✗ Firebase SDK nicht geladen");
+      return;
+    }
+
+    // Config
+    const configStr = localStorage.getItem("firebase-config-v1");
+    if (configStr) {
+      try {
+        const config = JSON.parse(configStr);
+        const hasAllFields = config.apiKey && config.authDomain && config.databaseURL && config.projectId;
+        if (hasAllFields) {
+          document.getElementById('config-status').textContent = "✓ VORHANDEN";
+          document.getElementById('config-status').className = "value success";
+          console.log("✓ Firebase Config vorhanden", config);
+        } else {
+          document.getElementById('config-status').textContent = "✗ UNVOLLSTÄNDIG";
+          document.getElementById('config-status').className = "value error";
+          console.error("✗ Config unvollständig:", config);
+        }
+      } catch (e) {
+        document.getElementById('config-status').textContent = "✗ FEHLER";
+        document.getElementById('config-status').className = "value error";
+        console.error("✗ Config JSON-Error:", e);
+      }
+    } else {
+      document.getElementById('config-status').textContent = "✗ NICHT GESPEICHERT";
+      document.getElementById('config-status').className = "value error";
+      console.error("✗ Keine Config in localStorage");
+    }
+
+    // Firebase DB Connection
+    try {
+      if (firebase.apps.length > 0) {
+        const db = firebase.database();
+        if (db) {
+          document.getElementById('db-status').textContent = "✓ BEREIT";
+          document.getElementById('db-status').className = "value success";
+          console.log("✓ Firebase DB verbunden");
+        } else {
+          throw new Error("DB nicht verfügbar");
+        }
+      } else {
+        document.getElementById('db-status').textContent = "✗ APP NICHT INIT";
+        document.getElementById('db-status').className = "value error";
+        console.warn("✗ Firebase App nicht initialisiert");
+      }
+    } catch (e) {
+      document.getElementById('db-status').textContent = "✗ FEHLER";
+      document.getElementById('db-status').className = "value error";
+      console.error("✗ DB Connection Fehler:", e);
+    }
+
+    // LocalStorage
+    try {
+      const test = "__test__";
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      document.getElementById('local-status').textContent = "✓ FUNKTIONIERT";
+      document.getElementById('local-status').className = "value success";
+      console.log("✓ LocalStorage funktioniert");
+    } catch (e) {
+      document.getElementById('local-status').textContent = "✗ FEHLER";
+      document.getElementById('local-status').className = "value error";
+      console.error("✗ LocalStorage Fehler (Private Mode?):", e);
+    }
+  }
+
+  window.testSync = async function(module) {
+    console.log(`\n=== TEST: ${module.toUpperCase()} SYNC ===`);
+
+    try {
+      const sync = new FirebaseSync(module);
+      console.log(`Initialisiere ${module}...`);
+
+      const ready = await sync.init();
+
+      if (ready) {
+        console.log(`✓ ${module} bereit`);
+        console.log(`Status: ${JSON.stringify(sync.getStatus())}`);
+
+        // Versuche zu synced
+        console.log(`Lade Daten von Firebase...`);
+        const cloudData = await sync.syncFromCloud();
+        if (cloudData) {
+          console.log(`✓ Daten geladen:`, cloudData);
+        } else {
+          console.log(`⚠ Keine Daten in Firebase (neu?)`);
+        }
+      } else {
+        console.error(`✗ ${module} konnte nicht initialisiert werden`);
+      }
+    } catch (e) {
+      console.error(`✗ Fehler bei ${module}:`, e);
+    }
+  };
+
+  // Auto-check on load
+  setTimeout(() => {
+    checkStatus();
+  }, 1000);
+
+  console.log("🔍 DEBUG-Konsole aktiv. Warte auf SDK...");
+})();
+</script>
+
+</body>
+</html>
