@@ -14,6 +14,8 @@
     <!-- Firebase Config (Auto-Loaded) -->
     <script src="firebase-config.js"></script>
 <script src="firebase-sync.js"></script>
+<!-- Optimized Storage (IndexedDB for large data) -->
+<script src="indexed-storage.js"></script>
 <style>
   :root {
     --bg-gradient: linear-gradient(135deg, #0f0f1e 0%, #1a1a2e 100%);
@@ -546,14 +548,10 @@
 
   async function loadData() {
     try {
-      if (!isLocalStorageAvailable()) {
-        console.warn("localStorage nicht verfügbar (Private Mode?)");
-        storageReady = true;
-        return;
-      }
-      const raw = localStorage.getItem(STORAGE_KEY);
+      // Nutze IndexedStorage (IndexedDB + localStorage Fallback)
+      const raw = await indexedStorage.getItem(STORAGE_KEY);
       if (raw) {
-        const parsed = JSON.parse(raw);
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         state.decks = Array.isArray(parsed.decks) ? parsed.decks : [];
         state.cards = Array.isArray(parsed.cards) ? parsed.cards : [];
         state.globalXp = typeof parsed.globalXp === "number" ? parsed.globalXp : 0;
@@ -561,6 +559,7 @@
         if (parsed.streak) state.streak = parsed.streak;
         if (parsed.stats) state.stats = parsed.stats;
         if (Array.isArray(parsed.achievements)) state.achievements = parsed.achievements;
+        console.log("✓ Daten aus IndexedStorage geladen");
       }
     } catch (e) { console.error("Fehler beim Laden:", e); }
     storageReady = true;
@@ -568,11 +567,24 @@
 
   async function saveData() {
     try {
-      if (!isLocalStorageAvailable()) {
-        console.warn("localStorage nicht verfügbar, kann nicht speichern");
-        return false;
+      // Nutze IndexedStorage (IndexedDB für große Datenmengen, localStorage Fallback)
+      const success = await indexedStorage.setItem(STORAGE_KEY, state);
+
+      if (!success) {
+        console.warn("⚠️ IndexedStorage Fehler, versuche Daten zu komprimieren...");
+        // Fallback: Speichere nur essenzielle Daten
+        const minimalState = {
+          cards: state.cards,
+          decks: state.decks,
+          globalXp: state.globalXp
+        };
+        const minSuccess = await indexedStorage.setItem(STORAGE_KEY, minimalState);
+        if (!minSuccess) {
+          console.error("❌ Speichern fehlgeschlagen!");
+          return false;
+        }
       }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+
       // Sync zu Firebase wenn verfügbar
       if (firebaseSync && firebaseSync.isConnected) {
         await firebaseSync.syncToCloud(state);
