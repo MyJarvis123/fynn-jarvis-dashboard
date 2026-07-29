@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Firebase Config Test</title>
+<style>
+  body {
+    background: #0f0f1e;
+    color: #e0e0e0;
+    font-family: monospace;
+    padding: 20px;
+    line-height: 1.6;
+  }
+  .success { color: #00ffc8; }
+  .error { color: #ff6b6b; }
+  .code { background: rgba(0, 0, 0, 0.5); padding: 10px; margin: 10px 0; border-radius: 4px; }
+  h1 { color: #00ffc8; }
+</style>
+</head>
+<body>
+
+<h1>🔧 Firebase Config Test</h1>
+
+<div class="code">
+  <strong>Test 1: FIREBASE_CONFIG Global Variable</strong><br>
+  <span id="test1"></span>
+</div>
+
+<div class="code">
+  <strong>Test 2: localStorage</strong><br>
+  <span id="test2"></span>
+</div>
+
+<div class="code">
+  <strong>Test 3: Config Values</strong><br>
+  <span id="test3"></span>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+<!-- Firebase Config -->
+<script src="firebase-config.js"></script>
+
+<script>
+(function() {
+  // Test 1: Global Variable
+  if (typeof FIREBASE_CONFIG !== "undefined") {
+    document.getElementById("test1").innerHTML = '<span class="success">✓ FIREBASE_CONFIG geladen!</span>';
+    console.log("Config:", FIREBASE_CONFIG);
+  } else {
+    document.getElementById("test1").innerHTML = '<span class="error">✗ FIREBASE_CONFIG NICHT GEFUNDEN</span>';
+  }
+
+  // Test 2: localStorage
+  try {
+    const stored = localStorage.getItem("firebase-config-v1");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      document.getElementById("test2").innerHTML = '<span class="success">✓ Config in localStorage gefunden!</span><br>projectId: ' + parsed.projectId;
+    } else {
+      document.getElementById("test2").innerHTML = '<span class="error">✗ localStorage leer (noch nicht gespeichert)</span>';
+    }
+  } catch (e) {
+    document.getElementById("test2").innerHTML = '<span class="error">✗ localStorage Error: ' + e.message + '</span>';
+  }
+
+  // Test 3: Values
+  if (typeof FIREBASE_CONFIG !== "undefined") {
+    const html = `
+      <span class="success">✓ Alle Werte vorhanden:</span><br>
+      • projectId: <strong>${FIREBASE_CONFIG.projectId}</strong><br>
+      • authDomain: <strong>${FIREBASE_CONFIG.authDomain}</strong><br>
+      • databaseURL: <strong>${FIREBASE_CONFIG.databaseURL.substring(0, 50)}...</strong><br>
+      • apiKey: <strong>${FIREBASE_CONFIG.apiKey.substring(0, 20)}...</strong>
+    `;
+    document.getElementById("test3").innerHTML = html;
+  }
+})();
+</script>
+
+</body>
+</html>

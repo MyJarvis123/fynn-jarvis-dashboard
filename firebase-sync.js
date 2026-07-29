@@ -42,14 +42,30 @@ class FirebaseSync {
           return false;
         }
 
-        // Lade Firebase-Config aus localStorage
-        const configStr = localStorage.getItem("firebase-config-v1");
-        if (!configStr) {
-          console.warn(`[${this.moduleName}] Firebase nicht konfiguriert`);
-          return false;
+        // Lade Firebase-Config: localStorage ODER firebase-config.js
+        let config = null;
+
+        // Versuch 1: localStorage
+        try {
+          const configStr = localStorage.getItem("firebase-config-v1");
+          if (configStr) {
+            config = JSON.parse(configStr);
+            console.log("✓ Config aus localStorage geladen");
+          }
+        } catch (e) {
+          console.warn("⚠️ localStorage nicht verfügbar:", e.message);
         }
 
-        const config = JSON.parse(configStr);
+        // Versuch 2: Fallback zu firebase-config.js (global FIREBASE_CONFIG)
+        if (!config && typeof FIREBASE_CONFIG !== "undefined") {
+          config = FIREBASE_CONFIG;
+          console.log("✓ Config aus firebase-config.js geladen (Fallback)");
+        }
+
+        if (!config) {
+          console.warn(`[${this.moduleName}] Firebase nicht konfiguriert (weder localStorage noch firebase-config.js)`);
+          return false;
+        }
 
         // Überprüfe ob alle Felder vorhanden sind
         const requiredFields = ["apiKey", "authDomain", "databaseURL", "projectId"];
@@ -62,11 +78,22 @@ class FirebaseSync {
         }
 
         // Initialisiere Firebase (nur einmal)
+        // ⚠️ WICHTIG: Verhindere mehrfaches Initialisieren (verursacht Reload-Fehler)
         if (!firebase.apps || firebase.apps.length === 0) {
-          firebase.initializeApp(config);
-          console.log("✓ Firebase initialisiert");
+          try {
+            firebase.initializeApp(config);
+            console.log("✓ Firebase initialisiert (neue App)");
+          } catch (initError) {
+            // Fehler bei Initialisierung (z.B. doppelt)
+            console.warn("⚠️ Firebase init warning:", initError.message);
+            if (firebase.apps && firebase.apps.length > 0) {
+              console.log("✓ Firebase bereits vom ersten Aufruf initialisiert");
+            } else {
+              throw initError;
+            }
+          }
         } else {
-          console.log("✓ Firebase bereits initialisiert");
+          console.log("✓ Firebase bereits initialisiert (App-Count: " + firebase.apps.length + ")");
         }
 
         this.db = firebase.database();
