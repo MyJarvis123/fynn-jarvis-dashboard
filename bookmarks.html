@@ -6,12 +6,6 @@
 <title>BOOKMARK ARCHIV — JARVIS</title>
 <!-- ⚠️ Persistent Storage MUSS ZUERST geladen werden -->
 <script src="persistent-storage.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-    <!-- Firebase Config (Auto-Loaded) -->
-    <script src="firebase-config.js"></script>
-<script src="firebase-sync.js"></script>
 <!-- Optimized Storage (IndexedDB for large data) -->
 <script src="indexed-storage.js"></script>
 <style>
@@ -433,8 +427,8 @@
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
       // Sync zu Firebase wenn verfügbar
-      if (firebaseSync && firebaseSync.isConnected) {
-        await firebaseSync.syncToCloud(state);
+      if (false) { // Firebase deactivated
+        
       }
       return true;
     } catch (e) {
@@ -606,43 +600,12 @@
   };
 
   // Firebase Sync
-  let firebaseSync = null;
 
-  async function initFirebase() {
-    try {
-      if (typeof FirebaseSync === "undefined") {
-        console.warn("FirebaseSync nicht verfügbar");
-        return false;
-      }
-
-      firebaseSync = new FirebaseSync("bookmarks");
-      const fbReady = await firebaseSync.init();
-
-      if (fbReady) {
-        console.log("✓ Firebase initialisiert für Bookmarks");
-        const cloudData = await firebaseSync.syncFromCloud();
-        if (cloudData && cloudData.bookmarks && cloudData.bookmarks.length > 0) {
-          state = cloudData;
-          console.log("✓ Bookmarks von Firebase geladen");
-          return true;
-        } else if (state.bookmarks.length > 0) {
-          await firebaseSync.syncToCloud(state);
-          console.log("✓ Bookmarks zu Firebase hochgeladen");
-          return true;
-        }
-      } else {
-        console.warn("Firebase nicht bereit für Bookmarks");
-      }
-    } catch (e) {
-      console.error("Firebase Init Fehler:", e);
-    }
-    return false;
-  }
 
   (async function init() {
     console.log("🔖 Bookmarks startet...");
     await loadData();
-    await initFirebase();
+    // Firebase init removed
     render();
   })();
 })();

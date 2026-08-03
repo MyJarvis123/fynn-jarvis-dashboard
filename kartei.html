@@ -6,15 +6,7 @@
 <title>KARTEI — JARVIS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-<!-- ⚠️ Persistent Storage MUSS ZUERST geladen werden -->
-<script src="persistent-storage.js"></script>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
-    <!-- Firebase Config (Auto-Loaded) -->
-    <script src="firebase-config.js"></script>
-<script src="firebase-sync.js"></script>
-<!-- Optimized Storage (IndexedDB for large data) -->
+<!-- ⚠️ Storage: Nur IndexedDB, kein Firebase (zu speicherhungrig) -->
 <script src="indexed-storage.js"></script>
 <style>
   :root {
@@ -570,7 +562,7 @@
 
   async function saveData() {
     try {
-      // Nutze IndexedStorage (IndexedDB für große Datenmengen, localStorage Fallback)
+      // Nutze nur IndexedDB (kein Firebase — zu speicherhungrig)
       const success = await indexedStorage.setItem(STORAGE_KEY, state);
 
       if (!success) {
@@ -586,11 +578,6 @@
           console.error("❌ Speichern fehlgeschlagen!");
           return false;
         }
-      }
-
-      // Sync zu Firebase wenn verfügbar
-      if (firebaseSync && firebaseSync.isConnected) {
-        await firebaseSync.syncToCloud(state);
       }
       return true;
     } catch (e) {
@@ -842,49 +829,13 @@
     });
   }
 
-  // Firebase Sync
-  let firebaseSync = null;
-
-  async function initFirebase() {
-    try {
-      if (typeof FirebaseSync === "undefined") {
-        console.warn("FirebaseSync nicht verfügbar");
-        return false;
-      }
-
-      firebaseSync = new FirebaseSync("kartei");
-      const fbReady = await firebaseSync.init();
-
-      if (fbReady) {
-        console.log("✓ Firebase initialisiert für Kartei");
-        // Versuche Daten von Firebase zu laden
-        const cloudData = await firebaseSync.syncFromCloud();
-        if (cloudData && cloudData.decks && cloudData.decks.length > 0) {
-          state = cloudData;
-          console.log("✓ Kartei von Firebase geladen");
-          return true;
-        } else if (state.decks.length > 0) {
-          // Speichere lokale Daten zu Firebase
-          await firebaseSync.syncToCloud(state);
-          console.log("✓ Kartei zu Firebase hochgeladen");
-          return true;
-        }
-      } else {
-        console.warn("Firebase nicht bereit für Kartei");
-      }
-    } catch (e) {
-      console.error("Firebase Init Fehler:", e);
-    }
-    return false;
-  }
+  // Hinweis: Firebase wurde entfernt (zu speicherhungrig)
+  // Alle Daten werden lokal in IndexedDB gespeichert
 
   (async function init() {
     console.log("📚 Kartei startet...");
-    // Initialisiere lokale Daten
+    // Initialisiere lokale Daten aus IndexedDB
     await loadData();
-
-    // Initialisiere Firebase
-    await initFirebase();
 
     if (state.decks.length === 0) {
       const deckId = uid();
@@ -896,7 +847,6 @@
       ];
       tests.forEach(t => { state.cards.push({ id: uid(), deckId, question: t.q, answer: t.a, ease: 2.5, interval: 0, reps: 0, due: todayISO(), createdAt: Date.now() }); });
       await saveData();
-      if (firebaseSync && firebaseSync.isConnected) await firebaseSync.syncToCloud(state);
     }
     render();
   })();
