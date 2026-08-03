@@ -59,10 +59,10 @@
     "recht": false,
     "rechtMinutes": 0,
     "rechtType": "None",
-    "energy": 7,
-    "sleep": 7,
-    "sleepQuality": "ok",
-    "notes": "Recovery day after 28.07 session."
+    "energy": 9,
+    "sleep": 8,
+    "sleepQuality": "good",
+    "notes": "Recovery day. Excellent sleep & energy."
   },
   {
     "date": "2026-07-30",
@@ -72,10 +72,10 @@
     "recht": false,
     "rechtMinutes": 0,
     "rechtType": "None",
-    "energy": 7,
-    "sleep": 7,
-    "sleepQuality": "ok",
-    "notes": "Recovery day."
+    "energy": 9,
+    "sleep": 8,
+    "sleepQuality": "good",
+    "notes": "Recovery day. Excellent sleep & energy."
   },
   {
     "date": "2026-07-31",
@@ -85,10 +85,10 @@
     "recht": false,
     "rechtMinutes": 0,
     "rechtType": "None",
-    "energy": 7,
-    "sleep": 7,
-    "sleepQuality": "ok",
-    "notes": "Recovery day before intensive session."
+    "energy": 9,
+    "sleep": 8,
+    "sleepQuality": "good",
+    "notes": "Recovery day. Excellent sleep & energy."
   },
   {
     "date": "2026-08-01",
@@ -98,9 +98,9 @@
     "recht": false,
     "rechtMinutes": 0,
     "rechtType": "None",
-    "energy": 7,
-    "sleep": 7,
-    "sleepQuality": "ok",
-    "notes": "Intensive session: 1.5h boulder, ring dips, push-ups, chin-ups, and core work. Well-structured workout."
+    "energy": 9,
+    "sleep": 8,
+    "sleepQuality": "good",
+    "notes": "Intensive session: 1.5h boulder, ring dips, push-ups, chin-ups, and core work. Energy 9/10, excellent sleep recovery."
   }
 ]
