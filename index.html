@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JARVIS HUB</title>
-    <!-- ⚠️ MUSS ZUERST GELADEN WERDEN: Überschreibt localStorage mit Fallbacks -->
+    <!-- ⚠️ ELECTRON Storage (wenn in Electron app) -->
+    <script src="electron-storage.js"></script>
+    <!-- ⚠️ Fallback Storage -->
     <script src="persistent-storage.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>

@@ -1,0 +1,38 @@
+{
+  "name": "jarvis-dashboard",
+  "version": "1.0.0",
+  "description": "JARVIS Dashboard - Offline-First Desktop App",
+  "main": "main.js",
+  "homepage": "./",
+  "scripts": {
+    "dev": "electron .",
+    "build": "electron-builder",
+    "start": "npm run dev"
+  },
+  "keywords": ["dashboard", "jarvis", "productivity", "offline"],
+  "author": "Fynn",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^43.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.jarvis.dashboard",
+    "productName": "JARVIS Dashboard",
+    "files": [
+      "main.js",
+      "preload.js",
+      "electron-storage.js",
+      "*.html",
+      "*.js",
+      "*.css"
+    ],
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "win": {
+      "target": ["nsis", "portable"]
+    }
+  }
+}
