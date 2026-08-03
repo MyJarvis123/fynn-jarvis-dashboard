@@ -50,5 +50,57 @@
     "sleep": 6,
     "sleepQuality": "ok",
     "notes": "Excellent core session, forearms performed well. Only 6h sleep but energy 8/10 (project motivation high). Dashboard/System work prioritized. Recht study deferred."
+  },
+  {
+    "date": "2026-07-29",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest Day",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 7,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Recovery day after 28.07 session."
+  },
+  {
+    "date": "2026-07-30",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest Day",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 7,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Recovery day."
+  },
+  {
+    "date": "2026-07-31",
+    "training": false,
+    "trainingMinutes": 0,
+    "trainingType": "Rest Day",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 7,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Recovery day before intensive session."
+  },
+  {
+    "date": "2026-08-01",
+    "training": true,
+    "trainingMinutes": 90,
+    "trainingType": "Boulder (1.5h) + Ring Dips + Push-ups + Chin-ups + Core",
+    "recht": false,
+    "rechtMinutes": 0,
+    "rechtType": "None",
+    "energy": 7,
+    "sleep": 7,
+    "sleepQuality": "ok",
+    "notes": "Intensive session: 1.5h boulder, ring dips, push-ups, chin-ups, and core work. Well-structured workout."
   }
 ]
